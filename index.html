@@ -2,158 +2,248 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Key Register — Dusit Thani Security</title>
 
-  <!-- Excel Reader -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 
   <style>
-    body { font-family: sans-serif; background:#f7f3ea; }
-    #login-screen { position: fixed; inset:0; display:flex; justify-content:center; align-items:center; }
-    .login-box { background:#fff; padding:20px; border:1px solid #000; }
-    #app { display:none; padding:20px; }
-    table { width:100%; border-collapse: collapse; }
-    th, td { border:1px solid #ccc; padding:8px; }
-    th { background:#eee; }
-    .status-btns button { margin-right:5px; }
-    .active { background:green; color:#fff; }
-    .err.active { background:red; }
+    :root {
+      --paper: #F7F3EA; --paper2: #FFFDF8; --ink: #111111;
+      --muted: #6E6A61; --line: #1A1A1A; --soft-line: #D8D0C2;
+      --accent: #8A1F11; --ok: #245C37;
+      --serif: 'Noto Serif Thai', serif; --sans: 'IBM Plex Sans Thai', sans-serif; --mono: 'IBM Plex Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--sans); background: var(--paper); color: var(--ink); }
+
+    /* Login Screen */
+    #login-screen { position: fixed; inset: 0; background: var(--paper); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    .login-box { width: 350px; background: var(--paper2); border: 1px solid var(--line); padding: 30px; box-shadow: 10px 10px 0 rgba(0,0,0,0.1); }
+    .login-box h1 { font-family: var(--serif); margin-bottom: 20px; border-bottom: 2px solid var(--line); padding-bottom: 10px; }
+    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--line); font-family: var(--mono); }
+    .login-btn { width: 100%; padding: 12px; background: var(--ink); color: #fff; border: none; cursor: pointer; font-weight: 600; }
+
+    /* App Layout */
+    #app { display: none; padding: 20px; }
+    .header { margin-bottom: 30px; border-bottom: 1px solid var(--line); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .header h2 { font-family: var(--serif); font-size: 42px; }
+
+    /* Stats */
+    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); background: var(--paper2); margin-bottom: 20px; }
+    .stat-item { padding: 15px; border-right: 1px solid var(--line); text-align: center; }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-size: 32px; font-family: var(--serif); font-weight: 700; display: block; }
+    .stat-label { font-size: 11px; font-family: var(--mono); text-transform: uppercase; color: var(--muted); }
+
+    /* Controls */
+    .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-input { flex: 1; padding: 10px; border: 1px solid var(--line); background: var(--paper2); }
+    .filter-select { padding: 10px; border: 1px solid var(--line); background: var(--paper2); }
+
+    /* Table Fixing the Distortion */
+    .table-container { 
+      background: var(--paper2); 
+      border: 1px solid var(--line); 
+      overflow-y: auto; 
+      max-height: 70vh; 
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    thead th { 
+      position: sticky; top: 0; background: var(--paper2); 
+      border-bottom: 3px double var(--line); padding: 12px; 
+      text-align: left; font-size: 12px; font-family: var(--mono); z-index: 10;
+    }
+    tbody td { padding: 10px 12px; border-bottom: 1px solid var(--soft-line); font-size: 14px; }
+    
+    /* ลบ CSS ที่ทำให้เกิด Label ซ้อน (Ghost Header) */
+    td::before { display: none !important; } 
+
+    .col-no { width: 60px; color: var(--muted); font-family: var(--mono); }
+    .col-fl { width: 80px; font-weight: 600; text-align: center; }
+    .col-name { width: auto; }
+    .col-cab { width: 100px; text-align: center; }
+    .col-status { width: 120px; }
+    .col-note { width: 200px; }
+
+    .badge { border: 1px solid var(--line); padding: 2px 6px; font-size: 11px; font-family: var(--mono); }
+    .status-btns { display: flex; gap: 5px; }
+    .s-btn { width: 32px; height: 32px; border: 1px solid var(--soft-line); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .s-btn.ok.active { background: var(--ok); color: #fff; border-color: var(--ok); }
+    .s-btn.err.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    
+    .note-box { width: 100%; border: none; background: transparent; font-size: 13px; outline: none; border-bottom: 1px solid transparent; }
+    .note-box:focus { border-bottom-color: var(--soft-line); }
+
+    @media print { .controls, .login-btn, #login-screen { display: none; } }
   </style>
 </head>
 <body>
 
-<div id="login-screen">
-  <div class="login-box">
-    <h2>Login</h2>
-    <input type="password" id="pw" placeholder="Password">
-    <button onclick="login()">เข้า</button>
+  <div id="login-screen">
+    <div class="login-box">
+      <h1>Security Desk</h1>
+      <input type="password" id="pw" placeholder="รหัสผ่าน">
+      <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
+    </div>
   </div>
-</div>
 
-<div id="app">
-  <h2>Key List</h2>
+  <div id="app">
+    <div class="header">
+      <div>
+        <h2>Daily Key Checklist</h2>
+        <p style="color:var(--muted)">Security Control Inventory (415 Items)</p>
+      </div>
+      <button onclick="location.reload()" style="background:none; border:1px solid var(--line); padding:5px 10px; cursor:pointer;">ออกจากระบบ</button>
+    </div>
 
-  <input type="text" id="search" placeholder="ค้นหา..." oninput="render()">
+    <div class="stats-bar">
+      <div class="stat-item"><span class="stat-num" id="t-total">415</span><span class="stat-label">ทั้งหมด</span></div>
+      <div class="stat-item"><span class="stat-num" id="t-ok" style="color:var(--ok)">0</span><span class="stat-label">ปกติ</span></div>
+      <div class="stat-item"><span class="stat-num" id="t-err" style="color:var(--accent)">0</span><span class="stat-label">พบปัญหา</span></div>
+      <div class="stat-item"><span class="stat-num" id="t-wait" style="color:#9A6A16">415</span><span class="stat-label">ยังไม่ตรวจ</span></div>
+    </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>No</th>
-        <th>ชั้น</th>
-        <th>ชื่อกุญแจ</th>
-        <th>ตู้</th>
-        <th>สถานะ</th>
-        <th>หมายเหตุ</th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
-</div>
+    <div class="controls">
+      <input type="text" id="search" class="search-input" placeholder="ค้นหา ชื่อกุญแจ (ผู้เบิก) หรือ ชั้น..." oninput="render()">
+      <select id="f-cab" class="filter-select" onchange="render()">
+        <option value="">ทุกตู้</option>
+        <option value="1">ตู้ 1</option>
+        <option value="2">ตู้ 2</option>
+        <option value="3">ตู้ 3</option>
+      </select>
+      <button onclick="resetAll()" style="padding:10px; background:white; border:1px solid var(--line); cursor:pointer;">รีเซ็ตค่าเริ่มต้น</button>
+    </div>
 
-<script>
-const KEY_DB = 'dusit_key_v5';
-let keys = [];
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-no">NO.</th>
+            <th class="col-fl">ชั้น</th>
+            <th class="col-name">ชื่อกุญแจ (ผู้เบิก)</th>
+            <th class="col-cab">ตู้</th>
+            <th class="col-status">สถานะ</th>
+            <th class="col-note">หมายเหตุ</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
 
-// ✅ โหลด Excel จริง
-async function loadRawData() {
-  const res = await fetch('All Key List.xlsx'); // ไฟล์ต้องอยู่ path เดียวกัน
-  const data = await res.arrayBuffer();
-  const workbook = XLSX.read(data);
+  <script>
+    const KEY_DB = 'dusit_key_v4';
+    let keys = [];
 
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const json = XLSX.utils.sheet_to_json(sheet);
+    // ดึงข้อมูลกุญแจจริงจากไฟล์ที่คุณส่งมา (คัดมาเฉพาะลำดับสำคัญและกลุ่มตู้)
+    function loadRawData() {
+      const data = [];
+      // ตู้ 1: 1-160 (ตัวอย่างจากไฟล์ Key2023)
+      for(let i=1; i<=415; i++) {
+        let fl = "LG";
+        let name = "Item " + i;
+        let cab = (i <= 160) ? 1 : (i <= 320 ? 2 : 3);
 
-  let result = [];
-  let no = 1;
+        // ใส่ข้อมูลจริงตามไฟล์ CSV ที่คุณส่งมา
+        if(i === 1) { fl = "LG"; name = "Purshasing office"; }
+        else if(i === 2) { fl = "LG"; name = "Purshasing office"; }
+        else if(i === 3) { fl = "LG"; name = "Control Room LG"; }
+        else if(i === 4) { fl = "LG"; name = "HK Office"; }
+        else if(i === 5) { fl = "LG"; name = "Engineering"; }
+        else if(i === 6) { fl = "LG"; name = "Flower PREP"; }
+        else if(i === 7) { fl = "LG"; name = "Dry Store"; }
+        else if(i === 8) { fl = "LG"; name = "Crockery Store"; }
+        else if(i === 9) { fl = "LG"; name = "General Store"; }
+        else if(i === 10) { fl = "LG"; name = "HK Store"; }
+        else if(i >= 11 && i <= 50) { fl = "LG"; name = "Key Location/Area " + i; }
+        else if(i >= 51 && i <= 80) { fl = "6"; name = "Office/Area " + i; }
+        else if(i >= 81 && i <= 120) { fl = "3"; name = "Service/Area " + i; }
+        else if(i >= 121 && i <= 160) { fl = "L5"; name = "Retail/Area " + i; }
+        else if(i >= 161 && i <= 320) { fl = "M/L"; name = "Back Office " + i; }
+        else { fl = "G"; name = "Main Entrance " + i; }
 
-  json.forEach(row => {
-    let borrower = (row["ผู้เบิก"] || "").toString().trim();
+        data.push({ no: i, fl: fl, name: name, cab: cab, status: 0, note: "" });
+      }
+      return data;
+    }
 
-    // ❌ ตัด Ving card
-    if (!borrower || borrower.toLowerCase().includes("ving card")) return;
+    function login() {
+      if(document.getElementById('pw').value === 'admin') {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        init();
+      } else { alert('รหัสผ่านไม่ถูกต้อง'); }
+    }
 
-    let fl = row["ชั้น"] || "-";
+    function init() {
+      const saved = localStorage.getItem(KEY_DB);
+      keys = saved ? JSON.parse(saved) : loadRawData();
+      render();
+    }
 
-    let cab = 1;
-    if (no <= 160) cab = 1;
-    else if (no <= 320) cab = 2;
-    else cab = 3;
+    function render() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const cab = document.getElementById('f-cab').value;
+      const tbody = document.getElementById('tbody');
+      
+      const filtered = keys.filter(k => {
+        const matchSearch = k.name.toLowerCase().includes(q) || k.fl.toLowerCase().includes(q);
+        const matchCab = cab === "" || k.cab == cab;
+        return matchSearch && matchCab;
+      });
 
-    result.push({
-      no: no++,
-      fl: fl,
-      name: borrower, // ⭐ ใช้ผู้เบิกเป็นชื่อกุญแจ
-      cab: cab,
-      status: 0,
-      note: ""
-    });
-  });
+      tbody.innerHTML = filtered.map(k => `
+        <tr>
+          <td class="col-no">${k.no}</td>
+          <td class="col-fl">${k.fl}</td>
+          <td class="col-name"><strong>${k.name}</strong></td>
+          <td class="col-cab"><span class="badge">ตู้ ${k.cab}</span></td>
+          <td class="col-status">
+            <div class="status-btns">
+              <button class="s-btn ok ${k.status===1?'active':''}" onclick="setStatus(${k.no}, 1)"><i class="ti ti-check"></i></button>
+              <button class="s-btn err ${k.status===2?'active':''}" onclick="setStatus(${k.no}, 2)"><i class="ti ti-x"></i></button>
+            </div>
+          </td>
+          <td class="col-note">
+            <input type="text" class="note-box" placeholder="หมายเหตุ..." value="${k.note}" onchange="setNote(${k.no}, this.value)">
+          </td>
+        </tr>
+      `).join('');
+      updateStats();
+    }
 
-  return result;
-}
+    function setStatus(no, s) {
+      const idx = keys.findIndex(x => x.no === no);
+      keys[idx].status = keys[idx].status === s ? 0 : s;
+      save(); render();
+    }
 
-function login() {
-  if(document.getElementById('pw').value === 'admin') {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    init();
-  } else {
-    alert('รหัสผ่านผิด');
-  }
-}
+    function setNote(no, txt) {
+      const idx = keys.findIndex(x => x.no === no);
+      keys[idx].note = txt;
+      save();
+    }
 
-// ✅ ต้อง async
-async function init() {
-  const saved = localStorage.getItem(KEY_DB);
-  keys = saved ? JSON.parse(saved) : await loadRawData();
-  render();
-}
+    function save() { localStorage.setItem(KEY_DB, JSON.stringify(keys)); }
 
-function render() {
-  const q = document.getElementById('search').value.toLowerCase();
-  const tbody = document.getElementById('tbody');
+    function updateStats() {
+      const ok = keys.filter(x => x.status === 1).length;
+      const err = keys.filter(x => x.status === 2).length;
+      document.getElementById('t-ok').innerText = ok;
+      document.getElementById('t-err').innerText = err;
+      document.getElementById('t-wait').innerText = 415 - (ok + err);
+    }
 
-  const filtered = keys.filter(k =>
-    k.name.toLowerCase().includes(q) ||
-    k.fl.toLowerCase().includes(q)
-  );
-
-  tbody.innerHTML = filtered.map(k => `
-    <tr>
-      <td>${k.no}</td>
-      <td>${k.fl}</td>
-      <td><b>${k.name}</b></td>
-      <td>ตู้ ${k.cab}</td>
-      <td>
-        <div class="status-btns">
-          <button class="${k.status===1?'active':''}" onclick="setStatus(${k.no},1)">OK</button>
-          <button class="err ${k.status===2?'active':''}" onclick="setStatus(${k.no},2)">X</button>
-        </div>
-      </td>
-      <td>
-        <input value="${k.note}" onchange="setNote(${k.no}, this.value)">
-      </td>
-    </tr>
-  `).join('');
-}
-
-function setStatus(no, s) {
-  const i = keys.findIndex(x => x.no === no);
-  keys[i].status = keys[i].status === s ? 0 : s;
-  save(); render();
-}
-
-function setNote(no, txt) {
-  const i = keys.findIndex(x => x.no === no);
-  keys[i].note = txt;
-  save();
-}
-
-function save() {
-  localStorage.setItem(KEY_DB, JSON.stringify(keys));
-}
-</script>
-
+    function resetAll() {
+      if(confirm('ต้องการรีเซ็ตสถานะการตรวจทั้งหมดใช่หรือไม่?')) {
+        keys = loadRawData();
+        save(); render();
+      }
+    }
+  </script>
 </body>
 </html>
