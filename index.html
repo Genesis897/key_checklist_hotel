@@ -1,1235 +1,566 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Key Security - DTBK</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    :root {
-      --paper:#F7F3EA; --paper2:#FFFDF8; --ink:#111111;
-      --muted:#6E6A61; --line:#1A1A1A; --soft-line:#D8D0C2;
-      --accent:#8A1F11; --ok:#245C37; --warn:#9A6A16;
-      --blue:#1a5276;
-      --serif:'Noto Serif Thai',serif; --sans:'IBM Plex Sans Thai',sans-serif; --mono:'IBM Plex Mono',monospace;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:var(--sans);background:var(--paper);color:var(--ink);}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Key Security - DTBK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --paper:#F7F3EA; --paper2:#FFFDF8; --ink:#111111;
+      --muted:#6E6A61; --line:#1A1A1A; --soft-line:#D8D0C2;
+      --accent:#8A1F11; --ok:#245C37; --warn:#9A6A16;
+      --blue:#1a5276;
+      --serif:'Noto Serif Thai',serif; --sans:'IBM Plex Sans Thai',sans-serif; --mono:'IBM Plex Mono',monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--sans);background:var(--paper);color:var(--ink);}
 
-    /* ─── LOGIN ─── */
-    #login-screen{position:fixed;inset:0;background:var(--paper);display:flex;align-items:center;justify-content:center;z-index:9999;}
-    .login-box{width:360px;background:var(--paper2);border:1px solid var(--line);padding:32px;box-shadow:10px 10px 0 rgba(0,0,0,0.1);}
-    .login-box h1{font-family:var(--serif);margin-bottom:6px;border-bottom:2px solid var(--line);padding-bottom:10px;font-size:28px;}
-    .login-box p{color:var(--muted);font-size:13px;margin-bottom:20px;}
-    .login-box input{width:100%;padding:12px;margin-bottom:14px;border:1px solid var(--line);font-family:var(--mono);background:var(--paper);font-size:14px;}
-    .login-btn{width:100%;padding:12px;background:var(--ink);color:#fff;border:none;cursor:pointer;font-weight:600;font-size:14px;letter-spacing:1px;}
-    .login-err{color:var(--accent);font-size:12px;font-family:var(--mono);margin-top:8px;display:none;}
+    /* ─── LOGIN ─── */
+    #login-screen{position:fixed;inset:0;background:var(--paper);display:flex;align-items:center;justify-content:center;z-index:9999;}
+    .login-box{width:360px;background:var(--paper2);border:1px solid var(--line);padding:32px;box-shadow:10px 10px 0 rgba(0,0,0,0.1);}
+    .login-box h1{font-family:var(--serif);margin-bottom:6px;border-bottom:2px solid var(--line);padding-bottom:10px;font-size:28px;}
+    .login-box p{color:var(--muted);font-size:13px;margin-bottom:20px;}
+    .login-box input{width:100%;padding:12px;margin-bottom:14px;border:1px solid var(--line);font-family:var(--mono);background:var(--paper);font-size:14px;}
+    .login-btn{width:100%;padding:12px;background:var(--ink);color:#fff;border:none;cursor:pointer;font-weight:600;font-size:14px;letter-spacing:1px;}
+    .login-err{color:var(--accent);font-size:12px;font-family:var(--mono);margin-top:8px;display:none;}
 
-    /* ─── APP ─── */
-    #app{display:none;padding:20px 20px 40px;}
-    .header{margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;}
-    .header h2{font-family:var(--serif);font-size:38px;line-height:1;}
+    /* ─── APP ─── */
+    #app{display:none;padding:20px 20px 40px;}
+    .header{margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;}
+    .header h2{font-family:var(--serif);font-size:38px;line-height:1;}
 
-    /* ─── PROGRESS BAND ─── */
-    .progress-band{background:var(--paper2);border:1px solid var(--line);margin-bottom:12px;padding:14px 16px;}
-    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
-    .progress-label{font-size:12px;font-family:var(--mono);color:var(--muted);}
-    .progress-pct{font-size:22px;font-family:var(--serif);font-weight:700;}
-    .progress-bar-bg{height:8px;background:var(--soft-line);width:100%;}
-    .progress-bar-fill{height:8px;background:var(--ok);transition:width .4s ease;}
-    .progress-bar-err{height:8px;background:var(--accent);margin-top:2px;transition:width .4s ease;}
+    /* ─── PROGRESS BAND ─── */
+    .progress-band{background:var(--paper2);border:1px solid var(--line);margin-bottom:12px;padding:14px 16px;}
+    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+    .progress-label{font-size:12px;font-family:var(--mono);color:var(--muted);}
+    .progress-pct{font-size:22px;font-family:var(--serif);font-weight:700;}
+    .progress-bar-bg{height:8px;background:var(--soft-line);width:100%;}
+    .progress-bar-fill{height:8px;background:var(--ok);transition:width .4s ease;}
+    .progress-bar-err{height:8px;background:var(--accent);margin-top:2px;transition:width .4s ease;}
 
-    /* ─── TABLE ─── */
-    .table-container{background:var(--paper2);border:1px solid var(--line);overflow-y:auto;max-height:60vh;overflow-x:auto;}
-    table{width:100%;border-collapse:collapse;min-width:1000px;}
-    thead th{position:sticky;top:0;background:var(--paper2);border-bottom:3px double var(--line);padding:10px 12px;text-align:left;font-size:11px;font-family:var(--mono);z-index:10;white-space:nowrap;}
-    tbody td{padding:8px 12px;border-bottom:1px solid var(--soft-line);font-size:13px;vertical-align:middle;}
-    .col-no{width:55px;color:var(--muted);font-family:var(--mono);font-size:12px;}
-    .col-fl{width:60px;text-align:center;}
-    .fl-badge{display:inline-block;font-weight:700;font-size:12px;font-family:var(--mono);background:var(--ink);color:#fff;padding:2px 6px;min-width:32px;text-align:center;}
-    .fl-empty{color:var(--muted);font-family:var(--mono);font-size:12px;}
-    .badge{border:1px solid var(--line);padding:2px 6px;font-size:10px;font-family:var(--mono);}
-    .status-btns{display:flex;gap:4px;}
-    .s-btn{width:30px;height:30px;border:1px solid var(--soft-line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-    .s-btn.ok.active{background:var(--ok);color:#fff;border-color:var(--ok);}
-    .s-btn.err.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-    .editable-cell{width:100%;border:none;background:transparent;font-size:13px;outline:none;font-family:var(--sans);color:var(--ink);}
-    .editable-cell:focus{background:#fff;border-bottom:1px dashed var(--line);}
-    .qty-input{width:52px;border:1px solid var(--soft-line);background:var(--paper);padding:3px 6px;text-align:center;font-family:var(--mono);font-size:13px;}
-    .new-name-col{color:var(--blue);}
-    tbody tr:hover{background:#f0ebe0;}
-    tbody tr.row-ok{background:#eef6f0;}
-    tbody tr.row-err{background:#fdf0ee;}
-    .footer-note{text-align:right;font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono);}
-    .sn-cell{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--paper);padding:2px 6px;border-radius:3px;border:1px solid var(--soft-line);}
-    @media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr);}.header h2{font-size:28px;}}
+    /* ─── SYNC BAR ─── */
+    .sync-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+    .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--soft-line);flex-shrink:0;transition:background .3s;}
+    .sync-dot.ok{background:var(--ok);}
+    .sync-dot.syncing{background:var(--warn);animation:pulse .8s infinite;}
+    .sync-dot.err{background:var(--accent);}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .sync-text{font-size:11px;font-family:var(--mono);color:var(--muted);}
+    .active-users{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+    .user-chip{font-size:10px;font-family:var(--mono);background:var(--ink);color:#fff;padding:2px 8px;border-radius:2px;}
+    .user-chip.self{background:var(--ok);}
 
-    /* ─── TOAST ─── */
-    #toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:10px 18px;font-size:13px;font-family:var(--mono);opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;}
-    #toast.show{opacity:1;}
-  </style>
+    /* ─── CHECKPOINT BANNER ─── */
+    .checkpoint-banner{background:#fffbe6;border:1px solid #c9a227;padding:10px 14px;margin-bottom:12px;display:none;font-size:12px;font-family:var(--mono);color:#7a5c00;}
+    .checkpoint-banner strong{font-weight:700;}
+
+    /* ─── STATS ─── */
+    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--paper2);margin-bottom:18px;}
+    .stat-item{padding:14px;border-right:1px solid var(--line);text-align:center;}
+    .stat-item:last-child{border-right:none;}
+    .stat-num{font-size:30px;font-family:var(--serif);font-weight:700;display:block;}
+    .stat-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;color:var(--muted);}
+
+    /* ─── CONTROLS ─── */
+    .controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+    .search-input{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
+    .filter-select{padding:9px 10px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
+    .ctrl-btn{padding:9px 14px;border:1px solid var(--line);background:var(--paper2);cursor:pointer;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+    .ctrl-btn.export{background:var(--ink);color:#fff;border-color:var(--ink);}
+    .ctrl-btn.checkpoint{background:var(--warn);color:#fff;border-color:var(--warn);}
+    .ctrl-btn.reset-st{background:var(--accent);color:#fff;border-color:var(--accent);}
+    <button class="ctrl-btn" onclick="loadFromCloud()">
+  <i class="ti ti-download"></i> โหลดล่าสุด
+</button>
+
+<button class="ctrl-btn export" onclick="saveToCloud()">
+  <i class="ti ti-upload"></i> บันทึกขึ้นระบบ
+</button>
+
+    /* ─── TABLE ─── */
+    .table-container{background:var(--paper2);border:1px solid var(--line);overflow-y:auto;max-height:60vh;overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;min-width:1000px;}
+    thead th{position:sticky;top:0;background:var(--paper2);border-bottom:3px double var(--line);padding:10px 12px;text-align:left;font-size:11px;font-family:var(--mono);z-index:10;white-space:nowrap;}
+    tbody td{padding:8px 12px;border-bottom:1px solid var(--soft-line);font-size:13px;vertical-align:middle;}
+    .col-no{width:55px;color:var(--muted);font-family:var(--mono);font-size:12px;}
+    .col-fl{width:60px;text-align:center;}
+    .fl-badge{display:inline-block;font-weight:700;font-size:12px;font-family:var(--mono);background:var(--ink);color:#fff;padding:2px 6px;min-width:32px;text-align:center;}
+    .fl-empty{color:var(--muted);font-family:var(--mono);font-size:12px;}
+    .badge{border:1px solid var(--line);padding:2px 6px;font-size:10px;font-family:var(--mono);}
+    .status-btns{display:flex;gap:4px;}
+    .s-btn{width:30px;height:30px;border:1px solid var(--soft-line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .s-btn.ok.active{background:var(--ok);color:#fff;border-color:var(--ok);}
+    .s-btn.err.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .editable-cell{width:100%;border:none;background:transparent;font-size:13px;outline:none;font-family:var(--sans);color:var(--ink);}
+    .editable-cell:focus{background:#fff;border-bottom:1px dashed var(--line);}
+    .qty-input{width:52px;border:1px solid var(--soft-line);background:var(--paper);padding:3px 6px;text-align:center;font-family:var(--mono);font-size:13px;}
+    .new-name-col{color:var(--blue);}
+    tbody tr:hover{background:#f0ebe0;}
+    tbody tr.row-ok{background:#eef6f0;}
+    tbody tr.row-err{background:#fdf0ee;}
+    .footer-note{text-align:right;font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono);}
+    .sn-cell{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--paper);padding:2px 6px;border-radius:3px;border:1px solid var(--soft-line);}
+    @media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr);}.header h2{font-size:28px;}}
+
+    /* ─── TOAST ─── */
+    #toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:10px 18px;font-size:13px;font-family:var(--mono);opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;}
+    #toast.show{opacity:1;}
+  </style>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="login-screen">
-  <div class="login-box">
-    <h1>Security Desk</h1>
-    <p>DTBK — Key Control Inventory</p>
-    <input type="password" id="pw" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')login()">
-    <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
-    <p class="login-err" id="login-err">รหัสผ่านไม่ถูกต้อง</p>
-  </div>
+  <div class="login-box">
+    <h1>Security Desk</h1>
+    <p>DTBK — Key Control Inventory</p>
+    <input type="password" id="pw" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
+    <p class="login-err" id="login-err">รหัสผ่านไม่ถูกต้อง</p>
+  </div>
 </div>
 
 <!-- APP -->
 <div id="app">
-  <div class="header">
-    <div>
-      <h2>Key Checklist</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory — DTBK</p>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> Excel</button>
-      <button class="ctrl-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
-    </div>
-  </div>
+  <div class="header">
+    <div>
+      <h2>Key Checklist</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory — DTBK</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="ctrl-btn checkpoint" onclick="saveCheckpoint()"><i class="ti ti-device-floppy"></i> บันทึก Checkpoint</button>
+      <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> Excel</button>
+      <button class="ctrl-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
+    </div>
+  </div>
 
-  <!-- PROGRESS -->
-  <div class="progress-band">
-    <div class="progress-top">
-      <span class="progress-label">ความคืบหน้าการตรวจสอบ</span>
-      <span class="progress-pct" id="prog-pct">0%</span>
-    </div>
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-ok" style="width:0%"></div></div>
-    <div class="progress-bar-bg" style="margin-top:3px;"><div class="progress-bar-err" id="prog-err" style="width:0%"></div></div>
-    <div style="display:flex;gap:16px;margin-top:6px;">
-      <span style="font-size:10px;font-family:var(--mono);color:var(--ok);">■ ใช้ได้</span>
-      <span style="font-size:10px;font-family:var(--mono);color:var(--accent);">■ ใช้ไม่ได้</span>
-      <span style="font-size:10px;font-family:var(--mono);color:var(--soft-line);">■ ยังไม่ตรวจ</span>
-    </div>
-  </div>
+  <!-- SYNC BAR -->
+  <div class="sync-bar">
+    <div class="sync-dot" id="sync-dot"></div>
+    <span class="sync-text" id="sync-text">กำลังโหลด...</span>
+  </div>
 
-  <!-- STATS -->
-  <div class="stats-bar">
-    <div class="stat-item"><span class="stat-num" id="t-total">0</span><span class="stat-label">ทั้งหมด</span></div>
-    <div class="stat-item"><span class="stat-num" id="t-ok" style="color:var(--ok)">0</span><span class="stat-label">ใช้ได้</span></div>
-    <div class="stat-item"><span class="stat-num" id="t-err" style="color:var(--accent)">0</span><span class="stat-label">ใช้ไม่ได้</span></div>
-    <div class="stat-item"><span class="stat-num" id="t-wait" style="color:var(--warn)">0</span><span class="stat-label">ยังไม่ตรวจ</span></div>
-  </div>
+  <!-- CHECKPOINT BANNER -->
+  <div class="checkpoint-banner" id="cp-banner"></div>
 
-  <!-- CONTROLS -->
-  <div class="controls">
-    <input type="text" id="search" class="search-input" placeholder="ค้นหาชื่อ / เลข / S/N / ชั้น..." oninput="render()">
-    <select id="f-cab" class="filter-select" onchange="render()">
-      <option value="">ทุกตู้</option>
-      <option value="1">ตู้ 1</option>
-      <option value="2">ตู้ 2</option>
-      <option value="3">ตู้ 3</option>
-    </select>
-    <select id="f-status" class="filter-select" onchange="render()">
-      <option value="">ทุกสถานะ</option>
-      <option value="0">ยังไม่ตรวจ</option>
-      <option value="1">ใช้ได้</option>
-      <option value="2">ใช้ไม่ได้</option>
-    </select>
-    <button class="ctrl-btn reset-st" onclick="resetAll()"><i class="ti ti-refresh"></i> รีเซ็ตสถานะ</button>
-  </div>
+  <!-- PROGRESS -->
+  <div class="progress-band">
+    <div class="progress-top">
+      <span class="progress-label">ความคืบหน้าการตรวจสอบ</span>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-ok" style="width:0%"></div></div>
+    <div class="progress-bar-bg" style="margin-top:3px;"><div class="progress-bar-err" id="prog-err" style="width:0%"></div></div>
+    <div style="display:flex;gap:16px;margin-top:6px;">
+      <span style="font-size:10px;font-family:var(--mono);color:var(--ok);">■ ใช้ได้</span>
+      <span style="font-size:10px;font-family:var(--mono);color:var(--accent);">■ ใช้ไม่ได้</span>
+      <span style="font-size:10px;font-family:var(--mono);color:var(--soft-line);">■ ยังไม่ตรวจ</span>
+    </div>
+  </div>
 
-  <!-- TABLE -->
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th class="col-no">NO.</th>
-          <th class="col-fl">ชั้น</th>
-          <th style="min-width:160px">ชื่อเดิม</th>
-          <th style="min-width:160px">ชื่อใหม่ (แก้ไขได้)</th>
-          <th style="width:100px">S/N</th>
-          <th style="width:70px;text-align:center;">จำนวน</th>
-          <th style="width:85px;text-align:center;">ตู้</th>
-          <th style="width:100px">สถานะ</th>
-          <th style="min-width:180px">หมายเหตุ</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
-  <p class="footer-note" id="footer-note"></p>
-</div>
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-num" id="t-total">0</span><span class="stat-label">ทั้งหมด</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-ok" style="color:var(--ok)">0</span><span class="stat-label">ใช้ได้</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-err" style="color:var(--accent)">0</span><span class="stat-label">ใช้ไม่ได้</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-wait" style="color:var(--warn)">0</span><span class="stat-label">ยังไม่ตรวจ</span></div>
+  </div>
 
-<div id="toast"></div>
+  <!-- CONTROLS -->
+  <div class="controls">
+    <input type="text" id="search" class="search-input" placeholder="ค้นหาชื่อ / เลข / S/N / ชั้น..." oninput="render()">
+    <select id="f-cab" class="filter-select" onchange="render()">
+      <option value="">ทุกตู้</option>
+      <option value="1">ตู้ 1</option>
+      <option value="2">ตู้ 2</option>
+      <option value="3">ตู้ 3</option>
+    </select>
+    <select id="f-status" class="filter-select" onchange="render()">
+      <option value="">ทุกสถานะ</option>
+      <option value="0">ยังไม่ตรวจ</option>
+      <option value="1">ใช้ได้</option>
+      <option value="2">ใช้ไม่ได้</option>
+    </select>
+    <button class="ctrl-btn reset-st" onclick="resetAll()"><i class="ti ti-refresh"></i> รีเซ็ตสถานะ</button>
+  </div>
 
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Key Security - DTBK</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <style>
-    :root {
-      --paper:#F7F3EA; --paper2:#FFFDF8; --ink:#111111;
-      --muted:#6E6A61; --line:#1A1A1A; --soft-line:#D8D0C2;
-      --accent:#8A1F11; --ok:#245C37; --warn:#9A6A16;
-      --blue:#1a5276;
-      --serif:'Noto Serif Thai',serif; --sans:'IBM Plex Sans Thai',sans-serif; --mono:'IBM Plex Mono',monospace;
-    }
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:var(--sans);background:var(--paper);color:var(--ink);}
-
-    /* ─── LOGIN ─── */
-    #login-screen{position:fixed;inset:0;background:var(--paper);display:flex;align-items:center;justify-content:center;z-index:9999;}
-    .login-box{width:360px;background:var(--paper2);border:1px solid var(--line);padding:32px;box-shadow:10px 10px 0 rgba(0,0,0,0.1);}
-    .login-box h1{font-family:var(--serif);margin-bottom:6px;border-bottom:2px solid var(--line);padding-bottom:10px;font-size:28px;}
-    .login-box p{color:var(--muted);font-size:13px;margin-bottom:20px;}
-    .login-box input{width:100%;padding:12px;margin-bottom:14px;border:1px solid var(--line);font-family:var(--mono);background:var(--paper);font-size:14px;}
-    .login-btn{width:100%;padding:12px;background:var(--ink);color:#fff;border:none;cursor:pointer;font-weight:600;font-size:14px;letter-spacing:1px;}
-    .login-err{color:var(--accent);font-size:12px;font-family:var(--mono);margin-top:8px;display:none;}
-
-    /* ─── APP ─── */
-    #app{display:none;padding:20px 20px 40px;}
-    .header{margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;}
-    .header h2{font-family:var(--serif);font-size:38px;line-height:1;}
-
-    /* ─── PROGRESS BAND ─── */
-    .progress-band{background:var(--paper2);border:1px solid var(--line);margin-bottom:12px;padding:14px 16px;}
-    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
-    .progress-label{font-size:12px;font-family:var(--mono);color:var(--muted);}
-    .progress-pct{font-size:22px;font-family:var(--serif);font-weight:700;}
-    .progress-bar-bg{height:8px;background:var(--soft-line);width:100%;}
-    .progress-bar-fill{height:8px;background:var(--ok);transition:width .4s ease;}
-    .progress-bar-err{height:8px;background:var(--accent);margin-top:2px;transition:width .4s ease;}
-
-    /* ─── STATS ─── */
-    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--paper2);margin-bottom:18px;}
-    .stat-item{padding:14px;border-right:1px solid var(--line);text-align:center;}
-    .stat-item:last-child{border-right:none;}
-    .stat-num{font-size:30px;font-family:var(--serif);font-weight:700;display:block;}
-    .stat-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;color:var(--muted);}
-
-    /* ─── CONTROLS ─── */
-    .controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
-    .search-input{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
-    .filter-select{padding:9px 10px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
-    .ctrl-btn{padding:9px 14px;border:1px solid var(--line);background:var(--paper2);cursor:pointer;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
-    .ctrl-btn.export{background:var(--ink);color:#fff;border-color:var(--ink);}
-    .ctrl-btn.reset-st{background:var(--accent);color:#fff;border-color:var(--accent);}
-
-    /* ─── TABLE ─── */
-    .table-container{background:var(--paper2);border:1px solid var(--line);overflow-y:auto;max-height:60vh;overflow-x:auto;}
-    table{width:100%;border-collapse:collapse;min-width:1000px;}
-    thead th{position:sticky;top:0;background:var(--paper2);border-bottom:3px double var(--line);padding:10px 12px;text-align:left;font-size:11px;font-family:var(--mono);z-index:10;white-space:nowrap;}
-    tbody td{padding:8px 12px;border-bottom:1px solid var(--soft-line);font-size:13px;vertical-align:middle;}
-    .col-no{width:55px;color:var(--muted);font-family:var(--mono);font-size:12px;}
-    .col-fl{width:60px;text-align:center;}
-    .fl-badge{display:inline-block;font-weight:700;font-size:12px;font-family:var(--mono);background:var(--ink);color:#fff;padding:2px 6px;min-width:32px;text-align:center;}
-    .status-btns{display:flex;gap:4px;}
-    .s-btn{width:30px;height:30px;border:1px solid var(--soft-line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-    .s-btn.ok.active{background:var(--ok);color:#fff;border-color:var(--ok);}
-    .s-btn.err.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-    .editable-cell{width:100%;border:none;background:transparent;font-size:13px;outline:none;font-family:var(--sans);color:var(--ink);}
-    .editable-cell:focus{background:#fff;border-bottom:1px dashed var(--line);}
-    .qty-input{width:52px;border:1px solid var(--soft-line);background:var(--paper);padding:3px 6px;text-align:center;font-family:var(--mono);font-size:13px;}
-    tbody tr:hover{background:#f0ebe0;}
-    tbody tr.row-ok{background:#eef6f0;}
-    tbody tr.row-err{background:#fdf0ee;}
-    .footer-note{text-align:right;font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono);}
-    .sn-cell{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--paper);padding:2px 6px;border-radius:3px;border:1px solid var(--soft-line);}
-    @media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr);}.header h2{font-size:28px;}}
-
-    #toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:10px 18px;font-size:13px;font-family:var(--mono);opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;}
-    #toast.show{opacity:1;}
-  </style>
-</head>
-<body>
-
-<div id="login-screen">
-  <div class="login-box">
-    <h1>Security Desk</h1>
-    <p>DTBK — Key Control Inventory</p>
-    <input type="password" id="pw" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')login()">
-    <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
-    <p class="login-err" id="login-err">รหัสผ่านไม่ถูกต้อง</p>
-  </div>
-</div>
-
-<div id="app">
-  <div class="header">
-    <div>
-      <h2>Key Checklist</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory — DTBK</p>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> ส่งออก Excel</button>
-      <button class="ctrl-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ออกจากระบบ</button>
-    </div>
-  </div>
-
-  <div class="progress-band">
-    <div class="progress-top">
-      <span class="progress-label">ความคืบหน้าการตรวจสอบ</span>
-      <span class="progress-pct" id="prog-pct">0%</span>
-    </div>
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-ok" style="width:0%"></div></div>
-    <div class="progress-bar-bg" style="margin-top:3px;"><div class="progress-bar-err" id="prog-err" style="width:0%"></div></div>
-  </div>
-
-  <div class="stats-bar">
-    <div class="stat-item"><span class="stat-num" id="t-total">0</span><span class="stat-label">ทั้งหมด</span></div>
-    <div class="stat-item"><span class="stat-num" id="t-ok" style="color:var(--ok)">0</span><span class="stat-label">ใช้ได้</span></div>
-    <div class="stat-item"><span class="stat-num" id="t-err" style="color:var(--accent)">0</span><span class="stat-label">ใช้ไม่ได้</span></div>
-    <div class="stat-item"><span class="stat-num" id="t-wait" style="color:var(--warn)">0</span><span class="stat-label">ยังไม่ตรวจ</span></div>
-  </div>
-
-  <div class="controls">
-    <input type="text" id="search" class="search-input" placeholder="ค้นหาชื่อ / S/N / ชั้น..." oninput="render()">
-    <select id="f-cab" class="filter-select" onchange="render()">
-      <option value="">ทุกตู้</option>
-      <option value="1">ตู้ 1</option>
-      <option value="2">ตู้ 2</option>
-    </select>
-    <select id="f-status" class="filter-select" onchange="render()">
-      <option value="">ทุกสถานะ</option>
-      <option value="0">ยังไม่ตรวจ</option>
-      <option value="1">ใช้ได้</option>
-      <option value="2">ใช้ไม่ได้</option>
-    </select>
-    <button class="ctrl-btn reset-st" onclick="resetAll()"><i class="ti ti-refresh"></i> รีเซ็ตสถานะ</button>
-  </div>
-
-  <div class="table-container">
-    <table>
-      <thead>
-        <tr>
-          <th class="col-no">NO.</th>
-          <th class="col-fl">ชั้น</th>
-          <th style="min-width:160px">ชื่อเดิม</th>
-          <th style="min-width:160px">ชื่อใหม่</th>
-          <th style="width:100px">S/N</th>
-          <th style="width:70px;text-align:center;">จำนวน</th>
-          <th style="width:85px;text-align:center;">ตู้</th>
-          <th style="width:100px">สถานะ</th>
-          <th style="min-width:180px">หมายเหตุ</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+  <!-- TABLE -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-no">NO.</th>
+          <th class="col-fl">ชั้น</th>
+          <th style="min-width:160px">ชื่อเดิม</th>
+          <th style="min-width:160px">ชื่อใหม่ (แก้ไขได้)</th>
+          <th style="width:100px">S/N</th>
+          <th style="width:70px;text-align:center;">จำนวน</th>
+          <th style="width:85px;text-align:center;">ตู้</th>
+          <th style="width:100px">สถานะ</th>
+          <th style="min-width:180px">หมายเหตุ</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <p class="footer-note" id="footer-note"></p>
 </div>
 
 <div id="toast"></div>
 
 <script>
-// RAW DATA - ใส่ข้อมูลที่เหลือตามโครงสร้างนี้ให้ครบครับ
+// ─── RAW DATA ────────────────────────────────────────────────────────────────
 const RAW = {
-  1: {fl:"LG",name:"Purshasing office",cab:1,sn:"118954"},
-  2: {fl:"LG",name:"Purshasing office",cab:1,sn:"119842"},
-  3: {fl:"LG",name:"Control Room LG",cab:1,sn:"119577"},
-  4: {fl:"LG",name:"HK Office",cab:1,sn:"114927"},
-  5: {fl:"LG",name:"Engineering",cab:1,sn:"114952"},
-  6: {fl:"LG",name:"Flower PREP",cab:1,sn:"118842"},
-  7: {fl:"LG",name:"Dry Store",cab:1,sn:"114277"},
-  8: {fl:"LG",name:"Crockery Store",cab:1,sn:"119065"},
-  9: {fl:"LG",name:"General Store",cab:1,sn:"113154"},
-  10: {fl:"LG",name:"HK Store",cab:1,sn:"114931"},
-  11: {fl:"LG",name:"Steward Store",cab:1,sn:"113163"},
-  12: {fl:"LG",name:"Chemical Storage & Coridoor",cab:1,sn:"114762"},
-  13: {fl:"LG",name:"Connect Chemical Storage",cab:1,sn:"114753"},
-  14: {fl:"LG",name:"Storage Room",cab:1,sn:"114868"},
-  15: {fl:"LG",name:"Bakery Store (บานคู่)",cab:1,sn:"114278"},
-  16: {fl:"LG",name:"Bakery Store (บานเดี๋ยว)",cab:1,sn:"119960"},
-  17: {fl:"LG",name:"Connecting door HK office",cab:1,sn:"114950"},
-  18: {fl:"LG",name:"Dishwash 1",cab:1,sn:"114914"},
-  19: {fl:"LG",name:"Dishwash Area",cab:1,sn:"114912"},
-  20: {fl:"LG",name:"Diswash1",cab:1,sn:"239/KIDI"},
-  21: {fl:"LG",name:"Cold Kitchen",cab:1,sn:"118855"},
-  22: {fl:"LG",name:"Main Kitchen",cab:1,sn:"114838"},
-  23: {fl:"LG",name:"Main Kitchen",cab:1,sn:"114655"},
-  24: {fl:"LG",name:"Kitchen Room",cab:1,sn:"114951"},
-  25: {fl:"LG",name:"Staff Canteen ประตูหน้า",cab:1,sn:"114876"},
-  26: {fl:"LG",name:"Staff Canteen (Recreation)",cab:1,sn:"4454/HAFELE"},
-  27: {fl:"LG",name:"CDU For cold Room",cab:1,sn:"114558"},
-  28: {fl:"LG",name:"Cheff's Office",cab:1,sn:"119574"},
-  29: {fl:"LG",name:"Recycable Area",cab:1,sn:"113961"},
-  30: {fl:"LG",name:"Sorting Area",cab:1,sn:"113365"},
-  31: {fl:"LG",name:"Waste Dock",cab:1,sn:"114155"},
-  32: {fl:"LG",name:"Uniform Issue",cab:1,sn:"138168"},
-  33: {fl:"LG",name:"Line sorting",cab:1,sn:"114919"},
-  34: {fl:"LG",name:"RFID Linen Source",cab:1,sn:"118843"},
-  35: {fl:"LG",name:"Receiving office",cab:1,sn:"117790"},
-  36: {fl:"LG",name:"Loading",cab:1,sn:"114727"},
-  37: {fl:"LG",name:"ICT Smart Room",cab:1,sn:"114856"},
-  38: {fl:"LG",name:"EE",cab:1,sn:"114832"},
-  39: {fl:"LG",name:"EE Room",cab:1,sn:"130407"},
-  40: {fl:"LG",name:"Service Corridor",cab:1,sn:"118472"},
-  41: {fl:"LG",name:"Service Corridor (hF)",cab:1,sn:"117729"},
-  42: {fl:"LG",name:"Service Corridor ริมอาคาร",cab:1,sn:"114665"},
-  43: {fl:"LG",name:"Service Corridor and loading",cab:1,sn:"270/KIDI_611"},
-  44: {fl:"LG",name:"Service Corridor",cab:1,sn:"114261"},
-  45: {fl:"LG",name:"Ice Carving",cab:1,sn:"114295"},
-  46: {fl:"LG",name:"ริมนอกอาคาร",cab:1,sn:"117185"},
-  47: {fl:"LG",name:"Clinic บานคู่",cab:1,sn:"118768"},
-  48: {fl:"LG",name:"Clinic บานเดี่ยว",cab:1,sn:"112008"},
-  49: {fl:"LG",name:"Interview Room",cab:1,sn:"118723"},
-  50: {fl:"LG",name:"Corridor ในล็อคเกอร์หญิง",cab:1,sn:"117202"},
-  51: {fl:"LG",name:"Service Corridor",cab:1,sn:"118506"},
-  52: {fl:"LG",name:"Beverage Store",cab:1,sn:"131282"},
-  53: {fl:"6",name:"Kids Club",cab:1,sn:"H015554-HAFELE"},
-  54: {fl:"G",name:"Driver Room",cab:1,sn:"115519"},
-  55: {fl:"1",name:"Canubi",cab:1,sn:"2779/HAFELE"},
-  56: {fl:"G",name:"Guard House บานนอก",cab:1,sn:"129505"},
-  57: {fl:"G",name:"ประตูใต้ Ramp G",cab:1,sn:"114643"},
-  58: {fl:"G",name:"Guard House บานใน",cab:1,sn:"124233"},
-  59: {fl:"5",name:"Poor Bar 5 floor",cab:1,sn:"12822 D27/3"},
-  60: {fl:"5",name:"Fitness",cab:1,sn:"HAFELE/4485/4723"},
-  61: {fl:"6",name:"ST01",cab:1,sn:"118789"},
-  62: {fl:"LG",name:"ST01 (BOH)",cab:1,sn:"119511"},
-  63: {fl:"M",name:"Storage",cab:1,sn:"118591"},
-  64: {fl:"6",name:"ห้อง CHP & CDP",cab:1,sn:"129571"},
-  65: {fl:"6",name:"Toilet/Foyer",cab:1,sn:"114905"},
-  66: {fl:"6",name:"Female's WC",cab:1,sn:"117211"},
-  67: {fl:"6",name:"Male's WC",cab:1,sn:"117245"},
-  68: {fl:"6",name:"ICT Smart Room",cab:1,sn:"114123"},
-  69: {fl:"6",name:"ST02",cab:1,sn:"117232"},
-  70: {fl:"6",name:"Server Room",cab:1,sn:"152324"},
-  71: {fl:"6",name:"Office 3",cab:1,sn:"111219"},
-  72: {fl:"6",name:"ห้อง IT",cab:1,sn:"134524"},
-  73: {fl:"6",name:"Training",cab:1,sn:"112265"},
-  74: {fl:"6",name:"Printer/Scanner Machine",cab:1,sn:"118639"},
-  75: {fl:"6",name:"Service Corridor 3",cab:1,sn:"119033"},
-  76: {fl:"6",name:"ห้อง Store/fire rated 2hr.",cab:1,sn:"118542"},
-  77: {fl:"6",name:"Private ห้องซ้าย",cab:1,sn:"111258"},
-  78: {fl:"6",name:"Private ห้องขวา",cab:1,sn:"124052"},
-  79: {fl:"6",name:"ห้อง Manager Room",cab:1,sn:"117541"},
-  80: {fl:"6",name:"Staff WC",cab:1,sn:"114188"},
-  81: {fl:"6",name:"Storage cleaning Equipment",cab:1,sn:"117230"},
-  82: {fl:"6",name:"Shelves For Linen",cab:1,sn:"117198"},
-  83: {fl:"6",name:"ห้อง AHU For Spa",cab:1,sn:"113560"},
-  84: {fl:"3",name:"Storage & Meeting Room",cab:1,sn:"114659"},
-  85: {fl:"6",name:"PANTRY+STAFF CANTEEN",cab:1,sn:"124004"},
-  86: {fl:"6",name:"MEETING",cab:1,sn:"118390"},
-  87: {fl:"6",name:"Office 1",cab:1,sn:"111217"},
-  88: {fl:"6",name:"Office 1",cab:1,sn:"111248"},
-  89: {fl:"6",name:"Office 1",cab:1,sn:"111252"},
-  90: {fl:"3",name:"Storage (2)",cab:1,sn:"113164"},
-  91: {fl:"3",name:"Service Corridor",cab:1,sn:"114411"},
-  92: {fl:"3",name:"BOH of Storage",cab:1,sn:"114228"},
-  93: {fl:"6",name:"ประตู Task ชุดที่ 3",cab:1,sn:"21313"},
-  94: {fl:"6",name:"ประตู Task ชุดที่ 4",cab:1,sn:"21345"},
-  95: {fl:"6",name:"ประตู Task ชุดที่ 2",cab:1,sn:"31355"},
-  96: {fl:"6",name:"ประตู Task ชุดที่ 1",cab:1,sn:"22222"},
-  97: {fl:"3",name:"Service Corridor ติด Retail",cab:1,sn:"118595"},
-  98: {fl:"3",name:"Outdoor Storage (1)",cab:1,sn:"126246"},
-  99: {fl:"3",name:"Service Corridor (h6)",cab:1,sn:"113516"},
-  100: {fl:"3",name:"Outdoor Storage",cab:1,sn:"123414"},
-  101: {fl:"3",name:"Fireman lift Lobby",cab:1,sn:"118759"},
-  102: {fl:"3",name:"GL.h8",cab:1,sn:"113421"},
-  103: {fl:"M",name:"Service Corridor",cab:1,sn:"118619"},
-  104: {fl:"L",name:"Front Office (บานใน)",cab:1,sn:"117178"},
-  105: {fl:"L",name:"Front Office",cab:1,sn:"113740"},
-  106: {fl:"M",name:"Function Lift Lobby",cab:1,sn:"118559"},
-  107: {fl:"1",name:"Maid Station",cab:1,sn:"113119"},
-  108: {fl:"M",name:"AHU For Lobby",cab:1,sn:"114304"},
-  109: {fl:"1",name:"BQ Kitchen & Service Corridor",cab:1,sn:"118581"},
-  110: {fl:"1",name:"BQ Kitchen",cab:1,sn:"112886"},
-  111: {fl:"1",name:"Function Lift",cab:1,sn:"118733"},
-  112: {fl:"1",name:"Service Corridor and Pantry",cab:1,sn:"129546"},
-  113: {fl:"1",name:"Corridor Retail (2) ติดห้องน้ำ",cab:1,sn:"119631"},
-  114: {fl:"1",name:"Corridor Retail (1) ติดห้องครัว",cab:1,sn:"118470"},
-  115: {fl:"2",name:"Storage and Service Corridor",cab:1,sn:"112628"},
-  116: {fl:"2",name:"Service Corridor ติด Retail",cab:1,sn:"118366"},
-  117: {fl:"2",name:"Function Lift Lobby + Corridor",cab:1,sn:"118539"},
-  118: {fl:"2",name:"Kitchen and Service Corridor",cab:1,sn:"118805"},
-  119: {fl:"42",name:"Lower Sky Deck",cab:1,sn:"125690"},
-  120: {fl:"42",name:"Lower Sky Deck",cab:1,sn:"125917"},
-  121: {fl:"L5",name:"Service Corridor (Retail)",cab:1,sn:"118296"},
-  122: {fl:"LG",name:"St01",cab:1,sn:"143465"},
-  123: {fl:"LG",name:"St02",cab:1,sn:"118586"},
-  124: {fl:"LG",name:"Fireman Lift Lobby",cab:1,sn:"542431"},
-  125: {fl:"LG",name:"ห้อง Guest Lift Lobby",cab:1,sn:"114906"},
-  126: {fl:"B3",name:"Fireman Lift Lobby",cab:1,sn:"118729"},
-  127: {fl:"B3",name:"ห้อง ST1",cab:1,sn:"118557"},
-  128: {fl:"B3",name:"ห้อง ST2",cab:1,sn:"117170"},
-  129: {fl:"B3",name:"ห้อง R-S (hE) บานใน",cab:1,sn:"927873"},
-  130: {fl:"B3",name:"R-SD01 (hB) บาน 3",cab:1,sn:"725873"},
-  131: {fl:"B2",name:"Fireman Lift Lobby",cab:1,sn:"113189"},
-  132: {fl:"B2",name:"ห้อง ST1",cab:1,sn:"119608"},
-  133: {fl:"B2",name:"ห้อง ST2",cab:1,sn:"118629"},
-  134: {fl:"B2",name:"ห้อง R-S (hA) บาน 2",cab:1,sn:"585873"},
-  135: {fl:"B2",name:"ห้อง R-S (hB) บาน 3",cab:1,sn:"569873"},
-  136: {fl:"B2",name:"ห้อง R-S (hE) บาน 1",cab:1,sn:"785873"},
-  137: {fl:"-",name:"Personal Lift",cab:1,sn:"585873"},
-  138: {fl:"B1",name:"Fireman Lift Lobby",cab:1,sn:"113367"},
-  139: {fl:"B1",name:"ห้อง R-SD01 (HA)",cab:1,sn:"923873"},
-  140: {fl:"B1",name:"ห้อง R-SD01 (HB)",cab:1,sn:"789873"},
-  141: {fl:"B1",name:"ห้อง R-SD01 (HE)",cab:1,sn:"787873"},
-  142: {fl:"B1",name:"ห้อง ST1",cab:1,sn:"118634"},
-  143: {fl:"B1",name:"ห้อง ST2",cab:1,sn:"118468"},
-  144: {fl:"G",name:"Fireman Lift Lobby",cab:1,sn:"119547"},
-  145: {fl:"G",name:"FORYER 1",cab:1,sn:"114839"},
-  146: {fl:"G",name:"FORYER 2",cab:1,sn:"114920"},
-  147: {fl:"G",name:"ST1 บานใน",cab:1,sn:"118760"},
-  148: {fl:"G",name:"ST1 บานนอก",cab:1,sn:"118482"},
-  149: {fl:"G",name:"VIP Entry",cab:1,sn:"124260"},
-  150: {fl:"G",name:"VIP Entry & corridor",cab:1,sn:"124729"},
-  151: {fl:"G",name:"Service corridor",cab:1,sn:"118463"},
-  152: {fl:"G",name:"ห้อง H1B",cab:1,sn:"117349"},
-  153: {fl:"G",name:"H-FST02",cab:1,sn:"117169"},
-  154: {fl:"G",name:"Master Key (MK1)",cab:1,sn:""},
-  155: {fl:"G",name:"Master Key (MK2)",cab:1,sn:""},
-  156: {fl:"G",name:"Fire Command",cab:1,sn:"113535"},
-  157: {fl:"L",name:"Fireman Lift Lobby",cab:1,sn:"113173"},
-  158: {fl:"L",name:"ห้อง ST1",cab:1,sn:"119617"},
-  159: {fl:"L",name:"ห้อง ST2",cab:1,sn:"118745"},
-  160: {fl:"L",name:"Service corridor ติด Retail",cab:1,sn:"118372"},
-  161: {fl:"L",name:"Service Corridor (D04)",cab:2,sn:"118568"},
-  162: {fl:"L",name:"Service Corridor (D05)",cab:2,sn:"113776"},
-  163: {fl:"L",name:"ห้องหลัง ST1 Service corridor",cab:2,sn:"136682"},
-  164: {fl:"L",name:"BOH Kitchen",cab:2,sn:"113366"},
-  165: {fl:"L",name:"Luggage Room",cab:2,sn:"113527"},
-  166: {fl:"M",name:"Fireman Lift Lobby",cab:2,sn:"118538"},
-  167: {fl:"G",name:"FL.G Exit Gourmet 1 (MK1)",cab:2,sn:"118559"},
-  168: {fl:"M",name:"ห้อง ST1",cab:2,sn:"119549"},
-  169: {fl:"M",name:"ห้อง ST2",cab:2,sn:"118683"},
-  170: {fl:"G",name:"FL.G Exit Gourmet 2 (MK1)",cab:2,sn:"118619"},
-  171: {fl:"G",name:"FL.G D1/2 (MK1)",cab:2,sn:"118733"},
-  172: {fl:"1",name:"Fireman Lift Lobby & Corridor",cab:2,sn:"118560"},
-  173: {fl:"1",name:"Fireman Lift Lobby & Corridor",cab:2,sn:"113544"},
-  174: {fl:"1",name:"Function Lift Lobby",cab:2,sn:"118533"},
-  175: {fl:"1",name:"ห้อง ST01 (BOH)",cab:2,sn:"118501"},
-  176: {fl:"1",name:"ห้อง ST1",cab:2,sn:"117213"},
-  177: {fl:"1",name:"ห้อง ST2",cab:2,sn:"117175"},
-  178: {fl:"1",name:"Grand ballroom",cab:2,sn:"114507"},
-  179: {fl:"1",name:"Floor Pantry (D06)",cab:2,sn:"113074"},
-  180: {fl:"1",name:"Floor Pantry (D05)",cab:2,sn:"129544"},
-  181: {fl:"2",name:"ห้อง Store",cab:2,sn:"114703"},
-  182: {fl:"2",name:"Fireman Lift Lobby",cab:2,sn:"118547"},
-  183: {fl:"2",name:"Fireman Lift Lobby (D05.1)",cab:2,sn:"114052"},
-  184: {fl:"2",name:"Fireman Lift Lobby (D04)",cab:2,sn:"118488"},
-  185: {fl:"2",name:"Kitchen",cab:2,sn:"114293"},
-  186: {fl:"G",name:"FL.G D1/1 (MK1)",cab:2,sn:"118805"},
-  187: {fl:"M",name:"Store (D05)",cab:2,sn:"114840"},
-  188: {fl:"M",name:"Store (D05.1)",cab:2,sn:"113791"},
-  189: {fl:"M",name:"FL.M D08/1 (MK2)",cab:2,sn:"118539"},
-  190: {fl:"1",name:"Pre-Function",cab:2,sn:"114273"},
-  191: {fl:"1",name:"Floor Pantry",cab:2,sn:"112753"},
-  192: {fl:"1",name:"FL.M D05 (MK2)",cab:2,sn:"118366"},
-  193: {fl:"3",name:"ST01 (BOH)",cab:2,sn:"118615"},
-  194: {fl:"3",name:"ST01",cab:2,sn:"117187"},
-  195: {fl:"3",name:"ST02",cab:2,sn:"118706"},
-  196: {fl:"4",name:"Fireman Lift Lobby & Prefunction",cab:2,sn:"117215"},
-  197: {fl:"4",name:"Floor Pantry (H5)",cab:2,sn:"113540"},
-  198: {fl:"4",name:"Floor Pantry (D06)",cab:2,sn:"112847"},
-  199: {fl:"5",name:"Pump Room",cab:2,sn:"113413"},
-  200: {fl:"5",name:"H-FST01",cab:2,sn:"118614"},
-  201: {fl:"5",name:"ST1(BOH)",cab:2,sn:"118612"},
-  202: {fl:"5",name:"ST2",cab:2,sn:"118765"},
-  203: {fl:"5",name:"Fireman Lift Lobby",cab:2,sn:"118601"},
-  204: {fl:"5",name:"ห้อง ST1",cab:2,sn:"118662"},
-  205: {fl:"5",name:"ห้อง ST2",cab:2,sn:"118728"},
-  206: {fl:"5",name:"ห้อง SPA",cab:2,sn:"119650"},
-  207: {fl:"5",name:"ห้อง Grand Room",cab:2,sn:"118476"},
-  208: {fl:"5",name:"ประตู D01",cab:2,sn:"118522"},
-  209: {fl:"5",name:"Master Key SPA (New)",cab:2,sn:"HTH19857MK3"},
-  210: {fl:"5",name:"Fl.5 ทางเข้าสปา (ขวา)",cab:2,sn:"HTH19857D01/4"},
-  211: {fl:"5",name:"Fl.5 ทางเข้าสปา (ซ้าย)",cab:2,sn:"HTH19857D01/5"},
-  212: {fl:"5",name:"ห้องเก็บของสปา",cab:2,sn:"HTH19857D02"},
-  213: {fl:"7",name:"Fireman Lift Lobby",cab:2,sn:"118536"},
-  214: {fl:"7",name:"Maid Station",cab:2,sn:"113350"},
-  215: {fl:"7",name:"Maid Toilet",cab:2,sn:"114412"},
-  216: {fl:"7",name:"ST01 (BOH)",cab:2,sn:"118632"},
-  217: {fl:"7",name:"ST01",cab:2,sn:"425546"},
-  218: {fl:"7",name:"ST02",cab:2,sn:"143455"},
-  219: {fl:"8",name:"Fireman Lift Lobby",cab:2,sn:"224643"},
-  220: {fl:"8",name:"Maid Station",cab:2,sn:"129508"},
-  221: {fl:"8",name:"EE Room",cab:2,sn:"114086"},
-  222: {fl:"8",name:"ST01 (BOH)",cab:2,sn:"118589"},
-  223: {fl:"8",name:"ST01",cab:2,sn:"118742"},
-  224: {fl:"8",name:"ST02",cab:2,sn:"143345"},
-  225: {fl:"9",name:"Fireman Lift Lobby",cab:2,sn:"332563"},
-  226: {fl:"9",name:"EE Room",cab:2,sn:"114871"},
-  227: {fl:"9",name:"ST01 (BOH)",cab:2,sn:"117223"},
-  228: {fl:"9",name:"ST01",cab:2,sn:"536552"},
-  229: {fl:"9",name:"ST02",cab:2,sn:"446633"},
-  230: {fl:"10",name:"Fireman Lift Lobby",cab:2,sn:"241244"},
-  231: {fl:"10",name:"Maid Station",cab:2,sn:"120338"},
-  232: {fl:"10",name:"EE Room",cab:2,sn:"114831"},
-  233: {fl:"10",name:"ST01 (BOH)",cab:2,sn:"334453"},
-  234: {fl:"10",name:"ST01",cab:2,sn:"118530"},
-  235: {fl:"10",name:"ST02",cab:2,sn:"443312"},
-  236: {fl:"11",name:"Fireman Lift Lobby",cab:2,sn:"643131"},
-  237: {fl:"11",name:"Maid Station",cab:2,sn:"129510"},
-  238: {fl:"11",name:"EE Room",cab:2,sn:"114867"},
-  239: {fl:"11",name:"ST01 (BOH)",cab:2,sn:"118652"},
-  240: {fl:"11",name:"ST01",cab:2,sn:"334455"},
-  241: {fl:"11",name:"ST02",cab:2,sn:"335364"},
-  242: {fl:"14",name:"Fireman Lift Lobby",cab:2,sn:"146563"},
-  243: {fl:"14",name:"Maid Station",cab:2,sn:"113337"},
-  244: {fl:"14",name:"EE Room",cab:2,sn:"114796"},
-  245: {fl:"14",name:"ST01 (BOH)",cab:2,sn:"118569"},
-  246: {fl:"14",name:"ST01",cab:2,sn:"143141"},
-  247: {fl:"14",name:"ST02",cab:2,sn:"336553"},
-  248: {fl:"15",name:"Fireman Lift Lobby",cab:2,sn:"524353"},
-  249: {fl:"15",name:"Maid Station",cab:2,sn:"120047"},
-  250: {fl:"15",name:"EE Room",cab:2,sn:"114042"},
-  251: {fl:"15",name:"ST01 (BOH)",cab:2,sn:"118799"},
-  252: {fl:"15",name:"ST01",cab:2,sn:"232425"},
-  253: {fl:"15",name:"ST02",cab:2,sn:"524652"},
-  254: {fl:"16",name:"Fireman Lift Lobby",cab:2,sn:"425442"},
-  255: {fl:"16",name:"EE Room",cab:2,sn:"114802"},
-  256: {fl:"16",name:"ST01 (BOH)",cab:2,sn:"118666"},
-  257: {fl:"16",name:"ST01",cab:2,sn:"146432"},
-  258: {fl:"16",name:"ST02",cab:2,sn:"146431"},
-  259: {fl:"17",name:"Fireman Lift Lobby",cab:2,sn:"654356"},
-  260: {fl:"17",name:"Maid Station",cab:2,sn:"113331"},
-  261: {fl:"17",name:"EE Room",cab:2,sn:"114160"},
-  262: {fl:"17",name:"ST01 (BOH)",cab:2,sn:"118712"},
-  263: {fl:"17",name:"ST01",cab:2,sn:"118490"},
-  264: {fl:"17",name:"ST02",cab:2,sn:"234453"},
-  265: {fl:"18",name:"Fireman Lift Lobby",cab:2,sn:"135234"},
-  266: {fl:"18",name:"Maid Station",cab:2,sn:"113519"},
-  267: {fl:"18",name:"Maid Toilet",cab:2,sn:"114235"},
-  268: {fl:"18",name:"EE Room",cab:2,sn:"114216"},
-  269: {fl:"18",name:"ST01 (BOH)",cab:2,sn:"119569"},
-  270: {fl:"18",name:"ST01",cab:2,sn:"119502"},
-  271: {fl:"18",name:"ST02",cab:2,sn:"331254"},
-  272: {fl:"19",name:"Fireman Lift Lobby",cab:2,sn:"117327"},
-  273: {fl:"1",name:"EE Room",cab:2,sn:"114878"},
-  274: {fl:"1",name:"ST01 (BOH)",cab:2,sn:"118467"},
-  275: {fl:"2",name:"ST01",cab:2,sn:"343632"},
-  276: {fl:"2",name:"ST02",cab:2,sn:"525413"},
-  277: {fl:"2",name:"Fireman Lift Lobby",cab:2,sn:"118492"},
-  278: {fl:"2",name:"EE Room",cab:2,sn:"130432"},
-  279: {fl:"42",name:"ST01 (BOH)",cab:2,sn:"117333"},
-  280: {fl:"42",name:"ST01",cab:2,sn:"132125"},
-  281: {fl:"L5",name:"ST02",cab:2,sn:"143635"},
-  282: {fl:"LG",name:"Fireman Lift Lobby",cab:2,sn:"118785"},
-  283: {fl:"LG",name:"Maid Toilet",cab:2,sn:"114153"},
-  284: {fl:"LG",name:"ST01 (BOH)",cab:2,sn:"118719"},
-  285: {fl:"LG",name:"ST01",cab:2,sn:"541253"},
-  286: {fl:"B3",name:"ST02",cab:2,sn:"534354"},
-  287: {fl:"B3",name:"EE Room",cab:2,sn:"114957"},
-  288: {fl:"B3",name:"Fireman Lift Lobby",cab:2,sn:"117224"},
-  289: {fl:"B3",name:"Maid Station",cab:2,sn:"113241"},
-  290: {fl:"B3",name:"EE Room",cab:2,sn:"113923"},
-  291: {fl:"B2",name:"ST01 (BOH)",cab:2,sn:"118534"},
-  292: {fl:"B2",name:"ST01",cab:2,sn:"133425"},
-  293: {fl:"B2",name:"ST02",cab:2,sn:"233546"},
-  294: {fl:"B2",name:"Fireman Lift Lobby",cab:2,sn:"117229"},
-  295: {fl:"B2",name:"Maid Station",cab:2,sn:"117166"},
-  296: {fl:"B2",name:"EE Room",cab:2,sn:"114947"},
-  297: {fl:"B2",name:"ST01 (BOH)",cab:2,sn:"118549"},
-  298: {fl:"B1",name:"ST01",cab:2,sn:"432141"},
-  299: {fl:"B1",name:"ST02",cab:2,sn:"134141"},
-  300: {fl:"14",name:"Fireman Lift Lobby",cab:2,sn:"118359"},
-  301: {fl:"14",name:"Maid Station",cab:2,sn:"110782"},
-  302: {fl:"14",name:"Maid Toilet",cab:2,sn:"114330"},
-  303: {fl:"14",name:"ST01 (BOH)",cab:2,sn:"118572"},
-  304: {fl:"14",name:"ST01",cab:2,sn:"233556"},
-  305: {fl:"14",name:"ST02",cab:2,sn:"343314"},
-  306: {fl:"15",name:"Fireman Lift Lobby",cab:2,sn:"443552"},
-  307: {fl:"15",name:"ST01 (BOH)",cab:2,sn:"118713"},
-  308: {fl:"15",name:"ST01",cab:2,sn:"118502"},
-  309: {fl:"15",name:"ST02",cab:2,sn:"435241"},
-  310: {fl:"15",name:"Fireman Lift Lobby",cab:2,sn:"118597"},
-  311: {fl:"15",name:"ST01 (BOH)",cab:2,sn:"119621"},
-  312: {fl:"16",name:"ST01",cab:2,sn:"341246"},
-  313: {fl:"16",name:"ST02",cab:2,sn:"235341"},
-  314: {fl:"16",name:"Fireman Lift Lobby",cab:2,sn:"118631"},
-  315: {fl:"16",name:"Maid Station",cab:2,sn:"110756"},
-  316: {fl:"16",name:"Maid Toilet",cab:2,sn:"113501"},
-  317: {fl:"17",name:"ST01 (BOH)",cab:2,sn:"118777"},
-  318: {fl:"17",name:"ST01",cab:2,sn:"144226"},
-  319: {fl:"17",name:"ST02",cab:2,sn:"142525"},
-  320: {fl:"17",name:"Fireman Lift Lobby",cab:2,sn:"118658"},
-  321: {fl:"18",name:"Maid Station",cab:2,sn:"110654"},
-  322: {fl:"18",name:"ST01 (BOH)",cab:2,sn:"118526"},
-  323: {fl:"18",name:"ST01",cab:2,sn:"125524"},
-  324: {fl:"18",name:"ST02",cab:2,sn:"118310"},
-  325: {fl:"18",name:"Fireman Lift Lobby",cab:2,sn:"117843"},
-  326: {fl:"18",name:"ห้องข้าง Fireman",cab:2,sn:"117179"},
-  327: {fl:"18",name:"ST01 (BOH)",cab:2,sn:"118592"},
-  328: {fl:"19",name:"ST1 บานนอก",cab:2,sn:"118464"},
-  329: {fl:"19",name:"ST1 บานใน",cab:2,sn:"118514"},
-  330: {fl:"1",name:"ST2 บานนอก",cab:2,sn:"118698"},
-  331: {fl:"1",name:"ST2 บานใน",cab:2,sn:"118681"},
-  332: {fl:"2",name:"Fireman Lift Lobby",cab:2,sn:"118466"},
-  333: {fl:"2",name:"Maid Station",cab:2,sn:"110781"},
-  334: {fl:"2",name:"Maid Toilet",cab:2,sn:"114323"},
-  335: {fl:"42",name:"ST01 (BOH)",cab:2,sn:"118495"},
-  336: {fl:"42",name:"ST01",cab:2,sn:"643631"},
-  337: {fl:"L5",name:"ST02",cab:2,sn:"132235"},
-  338: {fl:"LG",name:"Fireman Lift Lobby",cab:2,sn:"117274"},
-  339: {fl:"LG",name:"Maid Station",cab:2,sn:"110760"},
-  340: {fl:"LG",name:"ST01 (BOH)",cab:2,sn:"119572"},
-  341: {fl:"LG",name:"ST01",cab:2,sn:"118507"},
-  342: {fl:"B3",name:"ST02",cab:2,sn:"118616"},
-  343: {fl:"B3",name:"Fireman Lift Lobby",cab:2,sn:"117247"},
-  344: {fl:"B3",name:"Maid Station",cab:2,sn:"110797"},
-  345: {fl:"B3",name:"ST01 (BOH)",cab:2,sn:"118685"},
-  346: {fl:"B3",name:"ST01",cab:2,sn:"119516"},
-  347: {fl:"B2",name:"ST02",cab:2,sn:"118599"},
-  348: {fl:"B2",name:"Fireman Lift Lobby",cab:2,sn:"117193"},
-  349: {fl:"B2",name:"EE Room",cab:2,sn:"114947"}
-  350: {fl:"B2",name:"Maid Toilet",cab:2,sn:"112755"},
-  351: {fl:"B2",name:"ST01 (BOH)",cab:2,sn:"119488"},
-  352: {fl:"B2",name:"ST01",cab:2,sn:"117325"},
-  353: {fl:"B2",name:"ST02",cab:2,sn:"118478"},
-  354: {fl:"B1",name:"Fireman Lift Lobby",cab:2,sn:"118578"},
-  355: {fl:"33",name:"Maid Station",cab:3,sn:"110868"},
-  356: {fl:"33",name:"ST01 (BOH)",cab:3,sn:"118520"},
-  357: {fl:"33",name:"ST01",cab:3,sn:"119607"},
-  358: {fl:"33",name:"ST02",cab:3,sn:"117300"},
-  359: {fl:"34",name:"Fireman Lift Lobby",cab:3,sn:"118717"},
-  360: {fl:"34",name:"Maid Station",cab:3,sn:"110763"},
-  361: {fl:"34",name:"ST01 (BOH)",cab:3,sn:"118720"},
-  362: {fl:"34",name:"ST01",cab:3,sn:"118493"},
-  363: {fl:"34",name:"ST02",cab:3,sn:"118596"},
-  364: {fl:"35",name:"Fireman Lift Lobby",cab:3,sn:"118590"},
-  365: {fl:"35",name:"ห้องข้าง Fireman",cab:3,sn:"117156"},
-  366: {fl:"35",name:"Maid Station",cab:3,sn:"119096"},
-  367: {fl:"35",name:"ST01 (BOH)",cab:3,sn:"117200"},
-  368: {fl:"35",name:"ST01",cab:3,sn:"634435"},
-  369: {fl:"35",name:"ST02",cab:3,sn:"434634"},
-  370: {fl:"36",name:"Fireman Lift Lobby",cab:3,sn:"117248"},
-  371: {fl:"36",name:"Maid Station",cab:3,sn:"110674"},
-  372: {fl:"36",name:"ST01 (BOH)",cab:3,sn:"118617"},
-  373: {fl:"36",name:"ST01",cab:3,sn:"135214"},
-  374: {fl:"36",name:"ST02",cab:3,sn:"543425"},
-  375: {fl:"37",name:"Fireman Lift Lobby",cab:3,sn:"118633"},
-  376: {fl:"37",name:"Maid Station",cab:3,sn:"110815"},
-  377: {fl:"37",name:"ST01 (BOH)",cab:3,sn:"118702"},
-  378: {fl:"37",name:"ST01",cab:3,sn:"233412"},
-  379: {fl:"37",name:"ST02",cab:3,sn:"431234"},
-  380: {fl:"38",name:"Fireman Lift Lobby",cab:3,sn:"118471"},
-  381: {fl:"38",name:"Maid Station",cab:3,sn:"113874"},
-  382: {fl:"38",name:"ST01 (BOH)",cab:3,sn:"118509"},
-  383: {fl:"38",name:"ST01",cab:3,sn:"143564"},
-  384: {fl:"38",name:"ST02",cab:3,sn:"524523"},
-  385: {fl:"39",name:"Fireman Lift Lobby",cab:3,sn:"524544"},
-  386: {fl:"39",name:"ST01 (BOH)",cab:3,sn:"118496"},
-  387: {fl:"39",name:"ST01",cab:3,sn:"232566"},
-  388: {fl:"39",name:"ST02",cab:3,sn:"233145"},
-  389: {fl:"39M",name:"Fireman Lift Lobby",cab:3,sn:"118473"},
-  390: {fl:"39M",name:"Floor Pantry หน้าลิฟต์",cab:3,sn:"118776"},
-  391: {fl:"39M",name:"ST01 (BOH)",cab:3,sn:"534131"},
-  392: {fl:"39M",name:"ST01",cab:3,sn:"524636"},
-  393: {fl:"39M",name:"ST02",cab:3,sn:"118477"},
-  394: {fl:"40",name:"ST01",cab:3,sn:"233425"},
-  395: {fl:"42",name:"ST01",cab:3,sn:"118743"},
-  396: {fl:"42",name:"ST02",cab:3,sn:"136436"},
-  397: {fl:"6",name:"Fireman Lift Lobby",cab:3,sn:""},
-  398: {fl:"42",name:"ห้องลิฟต์",cab:3,sn:""},
-  399: {fl:"G",name:"FL.L D01 (MK2) Forest Bar",cab:3,sn:""},
-  400: {fl:"3",name:"ทางเชื่อมชั้น 3 ไปสวน",cab:3,sn:""},
-  401: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  402: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  403: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  404: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  405: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  406: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  407: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  408: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  409: {fl:"3",name:"Shutter Door On 3Floor",cab:3,sn:""},
-  410: {fl:"3",name:"Shutter Door On 3Floor",cab:3,sn:""},
-  411: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  412: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  413: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  414: {fl:"G",name:"FL.G D01B (MK1)",cab:3,sn:""},
-  415: {fl:"G",name:"FL.G D08/2 (MK2)",cab:3,sn:""}
-};
-
-let data = [];
-const KEY = "dtbk_key_local_v2";
-
-function initData() {
-  const local = localStorage.getItem(KEY);
-  if (local) {
-    data = JSON.parse(local);
-  } else {
-    data = Object.entries(RAW).map(([id, item]) => ({
-      id: parseInt(id),
-      ...item,
-      newName: "",
-      qty: 1,
-      status: 0,
-      note: ""
-    }));
-    saveLocal();
-  }
-}
-
-function saveLocal() {
-  localStorage.setItem(KEY, JSON.stringify(data));
-  updateStats();
-}
-
-function login() {
-  if (document.getElementById('pw').value === '1234') {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-    initData();
-    render();
-  } else {
-    document.getElementById('login-err').style.display = 'block';
-  }
-}
-
-function doLogout() { location.reload(); }
-
-function updateStats() {
-  const total = data.length;
-  const ok = data.filter(d => d.status === 1).length;
-  const err = data.filter(d => d.status === 2).length;
-  const wait = total - ok - err;
-  const pct = total > 0 ? Math.round(((ok + err) / total) * 100) : 0;
-
-  document.getElementById('t-total').textContent = total;
-  document.getElementById('t-ok').textContent = ok;
-  document.getElementById('t-err').textContent = err;
-  document.getElementById('t-wait').textContent = wait;
-  document.getElementById('prog-pct').textContent = pct + '%';
-  document.getElementById('prog-ok').style.width = (ok / total * 100) + '%';
-  document.getElementById('prog-err').style.width = (err / total * 100) + '%';
-}
-
-function render() {
-  const s = document.getElementById('search').value.toLowerCase();
-  const fCab = document.getElementById('f-cab').value;
-  const fSt = document.getElementById('f-status').value;
-  const tbody = document.getElementById('tbody');
-  
-  const filtered = data.filter(d => {
-    const matchSearch = d.name.toLowerCase().includes(s) || 
-                       (d.newName && d.newName.toLowerCase().includes(s)) || 
-                       d.sn.toLowerCase().includes(s) || 
-                       d.fl.toLowerCase().includes(s);
-    const matchCab = fCab === "" || d.cab.toString() === fCab;
-    const matchSt = fSt === "" || d.status.toString() === fSt;
-    return matchSearch && matchCab && matchSt;
-  });
-
-  tbody.innerHTML = filtered.map(d => `
-    <tr class="${d.status === 1 ? 'row-ok' : d.status === 2 ? 'row-err' : ''}">
-      <td class="col-no">${d.id}</td>
-      <td class="col-fl"><span class="fl-badge">${d.fl}</span></td>
-      <td>${d.name}</td>
-      <td><input class="editable-cell" value="${d.newName}" placeholder="..." onchange="updateRow(${d.id}, 'newName', this.value)"></td>
-      <td><span class="sn-cell">${d.sn || '-'}</span></td>
-      <td style="text-align:center;"><input type="number" class="qty-input" value="${d.qty}" onchange="updateRow(${d.id}, 'qty', this.value)"></td>
-      <td style="text-align:center;">#${d.cab}</td>
-      <td>
-        <div class="status-btns">
-          <button class="s-btn ok ${d.status === 1 ? 'active' : ''}" onclick="updateStatus(${d.id}, 1)"><i class="ti ti-check"></i></button>
-          <button class="s-btn err ${d.status === 2 ? 'active' : ''}" onclick="updateStatus(${d.id}, 2)"><i class="ti ti-x"></i></button>
-        </div>
-      </td>
-      <td><input class="editable-cell" value="${d.note}" placeholder="หมายเหตุ..." onchange="updateRow(${d.id}, 'note', this.value)"></td>
-    </tr>
-  `).join('');
-}
-
-function updateRow(id, field, val) {
-  const item = data.find(d => d.id === id);
-  if (item) {
-    item[field] = field === 'qty' ? parseInt(val) || 0 : val;
-    saveLocal();
-  }
-}
-
-function updateStatus(id, st) {
-  const item = data.find(d => d.id === id);
-  if (item) {
-    item.status = item.status === st ? 0 : st;
-    saveLocal();
-    render();
-  }
-}
-
-function resetAll() {
-  if (confirm('ต้องการรีเซ็ตสถานะทั้งหมด?')) {
-    data.forEach(d => { d.status = 0; d.note = ""; });
-    saveLocal();
-    render();
-    showToast('รีเซ็ตข้อมูลแล้ว');
-  }
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2000);
-}
-
-function exportExcel() {
-  const exportData = data.map(d => ({
-    'NO': d.id, 'ชั้น': d.fl, 'ชื่อเดิม': d.name, 'ชื่อใหม่': d.newName, 'SN': d.sn, 'จำนวน': d.qty, 'ตู้': d.cab, 
-    'สถานะ': d.status === 1 ? 'ใช้ได้' : d.status === 2 ? 'ใช้ไม่ได้' : 'ยังไม่ตรวจ', 'หมายเหตุ': d.note
-  }));
-  const ws = XLSX.utils.json_to_sheet(exportData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Inventory");
-  XLSX.writeFile(wb, `Key_Report_${new Date().toLocaleDateString()}.xlsx`);
-}
-</script>
-</body>
-</html>
-};
-
-// ─── STORAGE KEYS ────────────────────────────────────────────────────────────
-const SK_KEYS = 'DTBK_v7_keys';
-const SK_CHECKPOINT = 'DTBK_v7_checkpoint';
-const SK_HEARTBEAT_PFX = 'DTBK_v7_hb_';
-
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let keys = [];
-let currentUser = '';
-let saveTimer = null;
-let pollTimer = null;
-let heartbeatTimer = null;
-let lastSyncTime = null;
-let isSyncing = false;
-
-// ─── HELPERS ─────────────────────────────────────────────────────────────────
-function loadRawData() {
-  return Object.entries(RAW).map(([no, d]) => ({
-    no: parseInt(no), fl: d.fl, name: d.name, sn: d.sn || '',
-    newName: '', qty: 1, cab: d.cab, status: 0, note: ''
-  }));
-}
-
-function fmt(dt) {
-  if (!dt) return '';
-  const d = new Date(dt);
-  return d.toLocaleDateString('th-TH',{day:'2-digit',month:'short',year:'2-digit'})
-    + ' ' + d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
-}
-
-function toast(msg, dur=2500) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), dur);
-}
-
-function setSyncStatus(state, msg) {
-  const dot = document.getElementById('sync-dot');
-  const txt = document.getElementById('sync-text');
-  dot.className = 'sync-dot ' + state;
-  txt.textContent = msg;
-}
-
-// ─── LOGIN / LOGOUT ───────────────────────────────────────────────────────────
-const VALID_USERS = ['Thirapong','Thanawut','Fauci','Paisan','Watjakorn','Jakkapong'];
-
-function login() {
-  const pw = document.getElementById('pw').value.trim();
-  const errEl = document.getElementById('login-err');
-  const matched = VALID_USERS.find(u => u.toLowerCase() === pw.toLowerCase());
-  if (!matched) { errEl.style.display = 'block'; return; }
-  errEl.style.display = 'none';
-  currentUser = matched;
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  init();
-}
-
-function doLogout() {
-  clearInterval(pollTimer);
-  clearInterval(heartbeatTimer);
-  clearTimeout(saveTimer);
-  removeHeartbeat();
-  location.reload();
-}
-
-// ─── HEARTBEAT (active users) ─────────────────────────────────────────────────
-async function sendHeartbeat() {
-  try {
-    const key = SK_HEARTBEAT_PFX + currentUser.replace(/\s+/g,'_');
-    await window.storage.set(key, JSON.stringify({user: currentUser, ts: Date.now()}), true);
-  } catch(e) {}
-}
-
-async function removeHeartbeat() {
-  try {
-    const key = SK_HEARTBEAT_PFX + currentUser.replace(/\s+/g,'_');
-    await window.storage.delete(key, true);
-  } catch(e) {}
-}
-
-async function refreshActiveUsers() {
-  try {
-    const res = await window.storage.list(SK_HEARTBEAT_PFX, true);
-    const now = Date.now();
-    const container = document.getElementById('active-users');
-    let html = '<span style="font-size:10px;font-family:var(--mono);color:var(--muted);">ออนไลน์:</span>';
-    let found = 0;
-    for (const k of (res?.keys || [])) {
-      try {
-        const r = await window.storage.get(k, true);
-        if (r) {
-          const d = JSON.parse(r.value);
-          if (now - d.ts < 90000) { // 90s timeout
-            const isSelf = d.user === currentUser;
-            html += `<span class="user-chip ${isSelf?'self':''}">${d.user}${isSelf?' (คุณ)':''}</span>`;
-            found++;
-          }
-        }
-      } catch(e) {}
-    }
-    if (found === 0) html += '<span class="user-chip">' + currentUser + ' (คุณ)</span>';
-    container.innerHTML = html;
-  } catch(e) {}
-}
-
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-async function init() {
-  setSyncStatus('syncing', 'กำลังโหลดข้อมูล...');
-  try {
-    // Load shared keys data
-    const res = await window.storage.get(SK_KEYS, true);
-    if (res && res.value) {
-      const savedMap = {};
-      JSON.parse(res.value).forEach(k => savedMap[k.no] = k);
-      keys = loadRawData().map(k => savedMap[k.no]
-        ? {...k, status: savedMap[k.no].status, note: savedMap[k.no].note,
-           newName: savedMap[k.no].newName || '', qty: savedMap[k.no].qty ?? 1}
-        : k);
-    } else {
-      keys = loadRawData();
-    }
-    setSyncStatus('ok', 'ซิงค์แล้ว · ' + fmt(Date.now()));
-    lastSyncTime = Date.now();
-  } catch(e) {
-    keys = loadRawData();
-    setSyncStatus('err', 'ไม่สามารถโหลดข้อมูลได้');
-  }
-
-  await loadCheckpointBanner();
-  render();
-  sendHeartbeat();
-  refreshActiveUsers();
-
-  // Poll every 8 seconds
-  pollTimer = setInterval(pollShared, 8000);
-  // Heartbeat every 30 seconds
-  heartbeatTimer = setInterval(() => { sendHeartbeat(); refreshActiveUsers(); }, 30000);
-}
-
-// ─── POLL ─────────────────────────────────────────────────────────────────────
-async function pollShared() {
-  if (isSyncing) return;
-  try {
-    const res = await window.storage.get(SK_KEYS, true);
-    if (!res || !res.value) return;
-    const remote = JSON.parse(res.value);
-    // Merge: remote wins for status/note, local wins for newName/qty (edited actively)
-    const remoteMap = {};
-    remote.forEach(k => remoteMap[k.no] = k);
-    let changed = false;
-    keys.forEach(k => {
-      const r = remoteMap[k.no];
-      if (!r) return;
-      if (r.status !== k.status || r.note !== k.note) {
-        k.status = r.status;
-        k.note = r.note;
-        changed = true;
-      }
-    });
-    if (changed) {
-      render();
-      setSyncStatus('ok', 'อัปเดตจากระบบ · ' + fmt(Date.now()));
-    } else {
-      setSyncStatus('ok', 'ซิงค์แล้ว · ' + fmt(Date.now()));
-    }
-  } catch(e) {
-    setSyncStatus('err', 'ซิงค์ไม่สำเร็จ · ลองใหม่...');
-  }
-}
-
-// ─── SAVE (debounced) ─────────────────────────────────────────────────────────
-function scheduleSave() {
-  clearTimeout(saveTimer);
-  setSyncStatus('syncing', 'กำลังบันทึก...');
-  saveTimer = setTimeout(doSave, 800);
-}
-
-async function doSave() {
-  isSyncing = true;
-  try {
-    await window.storage.set(SK_KEYS, JSON.stringify(keys), true);
-    setSyncStatus('ok', 'บันทึกแล้ว · ' + fmt(Date.now()));
-  } catch(e) {
-    setSyncStatus('err', 'บันทึกไม่สำเร็จ');
-  }
-  isSyncing = false;
-  updateStats();
-}
-
-// ─── CHECKPOINT ───────────────────────────────────────────────────────────────
-async function saveCheckpoint() {
-  const checked = keys.filter(k => k.status !== 0).length;
-  const cp = {
-    user: currentUser,
-    ts: Date.now(),
-    checkedCount: checked,
-    total: keys.length,
-    data: JSON.stringify(keys)
-  };
-  try {
-    setSyncStatus('syncing', 'กำลังบันทึก Checkpoint...');
-    await window.storage.set(SK_KEYS, JSON.stringify(keys), true);
-    await window.storage.set(SK_CHECKPOINT, JSON.stringify(cp), true);
-    setSyncStatus('ok', 'บันทึก Checkpoint แล้ว · ' + fmt(Date.now()));
-    showCheckpointBanner(cp);
-    toast(`✓ Checkpoint บันทึกแล้ว — ${checked}/${keys.length} รายการ`);
-  } catch(e) {
-    setSyncStatus('err', 'บันทึก Checkpoint ไม่สำเร็จ');
-  }
-}
-
-async function loadCheckpointBanner() {
-  try {
-    const res = await window.storage.get(SK_CHECKPOINT, true);
-    if (res && res.value) {
-      showCheckpointBanner(JSON.parse(res.value));
-    }
-  } catch(e) {}
-}
-
-function showCheckpointBanner(cp) {
-  const el = document.getElementById('cp-banner');
-  const pct = Math.round(cp.checkedCount / cp.total * 100);
-  el.innerHTML = `<i class="ti ti-device-floppy"></i> &nbsp;<strong>Checkpoint ล่าสุด</strong> — บันทึกโดย <strong>${esc(cp.user)}</strong> เมื่อ ${fmt(cp.ts)} &nbsp;·&nbsp; ตรวจแล้ว <strong>${cp.checkedCount}/${cp.total}</strong> รายการ (${pct}%) &nbsp;·&nbsp; กะถัดไปสามารถดำเนินการต่อได้เลย`;
-  el.style.display = 'block';
-}
-
-// ─── RENDER ───────────────────────────────────────────────────────────────────
-function flCell(fl) {
-  if (!fl || fl === '-') return '<span class="fl-empty">—</span>';
-  return '<span class="fl-badge">' + fl + '</span>';
-}
-function snCell(sn) {
-  if (!sn) return '<span class="fl-empty">—</span>';
-  return '<span class="sn-cell">' + sn + '</span>';
-}
-
-function render() {
-  const q = document.getElementById('search').value.toLowerCase();
-  const cab = document.getElementById('f-cab').value;
-  const st = document.getElementById('f-status').value;
-
-  const filtered = keys.filter(k => {
-    const matchSearch = k.name.toLowerCase().includes(q)
-      || (k.newName||'').toLowerCase().includes(q)
-      || (k.sn||'').toLowerCase().includes(q)
-      || (k.fl||'').toLowerCase().includes(q)
-      || k.no.toString().includes(q);
-    const matchCab = cab === '' || k.cab == cab;
-    const matchSt = st === '' || k.status == st;
-    return matchSearch && matchCab && matchSt;
-  });
-
-  document.getElementById('tbody').innerHTML = filtered.map(k => {
-    const rowCls = k.status === 1 ? 'row-ok' : k.status === 2 ? 'row-err' : '';
-    return `<tr class="${rowCls}">
-      <td class="col-no">${k.no}</td>
-      <td class="col-fl">${flCell(k.fl)}</td>
-      <td>${k.name}</td>
-      <td class="new-name-col">
-        <input class="editable-cell" type="text" placeholder="—" value="${esc(k.newName||'')}"
-          onchange="setField(${k.no},'newName',this.value)">
-      </td>
-      <td>${snCell(k.sn)}</td>
-      <td style="text-align:center;">
-        <input class="qty-input" type="number" min="0" max="99" value="${k.qty}"
-          onchange="setField(${k.no},'qty',parseInt(this.value)||0)">
-      </td>
-      <td style="text-align:center;"><span class="badge">ตู้ ${k.cab}</span></td>
-      <td>
-        <div class="status-btns">
-          <button class="s-btn ok ${k.status===1?'active':''}" title="ใช้ได้" onclick="setStatus(${k.no},1)"><i class="ti ti-check"></i></button>
-          <button class="s-btn err ${k.status===2?'active':''}" title="ใช้ไม่ได้" onclick="setStatus(${k.no},2)"><i class="ti ti-x"></i></button>
-        </div>
-      </td>
-      <td>
-        <input class="editable-cell" type="text" placeholder="—" value="${esc(k.note||'')}"
-          onchange="setField(${k.no},'note',this.value)">
-      </td>
-    </tr>`;
-  }).join('');
-
-  document.getElementById('footer-note').textContent =
-    `แสดง ${filtered.length} จาก ${keys.length} รายการ`;
-  updateStats();
-}
-
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
-
-// ─── ACTIONS ──────────────────────────────────────────────────────────────────
-function setStatus(no, s) {
-  const k = keys.find(x => x.no === no);
-  k.status = k.status === s ? 0 : s;
-  scheduleSave();
-  render();
-}
-
-function setField(no, field, val) {
-  const k = keys.find(x => x.no === no);
-  k[field] = val;
-  scheduleSave();
-  updateStats();
-}
-
-async function resetAll() {
-  if (!confirm('รีเซ็ตสถานะและหมายเหตุทั้งหมดใช่หรือไม่?\n(ชื่อใหม่และจำนวนจะยังคงอยู่)')) return;
-  keys.forEach(k => { k.status = 0; k.note = ''; });
-  render();
-  await doSave();
-  toast('รีเซ็ตสถานะเรียบร้อย');
-}
-
-// ─── STATS & PROGRESS ─────────────────────────────────────────────────────────
-function updateStats() {
-  const total = keys.length;
-  const ok = keys.filter(x => x.status === 1).length;
-  const err = keys.filter(x => x.status === 2).length;
-  const wait = total - ok - err;
-  const checked = ok + err;
-  const pct = total > 0 ? Math.round(checked / total * 100) : 0;
-
-  document.getElementById('t-total').textContent = total;
-  document.getElementById('t-ok').textContent = ok;
-  document.getElementById('t-err').textContent = err;
-  document.getElementById('t-wait').textContent = wait;
-  document.getElementById('prog-pct').textContent = pct + '%';
-  document.getElementById('prog-ok').style.width = (total > 0 ? ok/total*100 : 0) + '%';
-  document.getElementById('prog-err').style.width = (total > 0 ? err/total*100 : 0) + '%';
-}
-
-// ─── EXPORT ───────────────────────────────────────────────────────────────────
-function exportExcel() {
-  const statusMap = {0:'ยังไม่ตรวจ',1:'ใช้ได้',2:'ใช้ไม่ได้'};
-  const data = [['No.','ชั้น','ชื่อเดิม','ชื่อใหม่','S/N','จำนวน','ตู้','สถานะ','หมายเหตุ']];
-  keys.forEach(k => data.push([
-    k.no, k.fl==='-'?'':k.fl, k.name, k.newName||'', k.sn||'', k.qty,
-    'ตู้ '+k.cab, statusMap[k.status], k.note||''
-  ]));
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(data);
-  ws['!cols'] = [{wch:6},{wch:6},{wch:32},{wch:32},{wch:16},{wch:8},{wch:8},{wch:14},{wch:30}];
-  XLSX.utils.book_append_sheet(wb, ws, 'Key Checklist');
-  XLSX.writeFile(wb, 'KeyChecklist_' + new Date().toISOString().slice(0,10) + '.xlsx');
-}
-</script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbzHwIgvqayNRy64KC0jQpTpXq7QTKrWYHnWQrUbGLouebkSg7TnuzENoiBSvkRD-UOI_Q/exec";
-</body>
-</html>
+  1: {fl:"LG",name:"Purshasing office",cab:1,sn:"118954"},
+  2: {fl:"LG",name:"Purshasing office",cab:1,sn:"119842"},
+  3: {fl:"LG",name:"Control Room LG",cab:1,sn:"119577"},
+  4: {fl:"LG",name:"HK Office",cab:1,sn:"114927"},
+  5: {fl:"LG",name:"Engineering",cab:1,sn:"114952"},
+  6: {fl:"LG",name:"Flower PREP",cab:1,sn:"118842"},
+  7: {fl:"LG",name:"Dry Store",cab:1,sn:"114277"},
+  8: {fl:"LG",name:"Crockery Store",cab:1,sn:"119065"},
+  9: {fl:"LG",name:"General Store",cab:1,sn:"113154"},
+  10: {fl:"LG",name:"HK Store",cab:1,sn:"114931"},
+  11: {fl:"LG",name:"Steward Store",cab:1,sn:"113163"},
+  12: {fl:"LG",name:"Chemical Storage & Coridoor",cab:1,sn:"114762"},
+  13: {fl:"LG",name:"Connect Chemical Storage",cab:1,sn:"114753"},
+  14: {fl:"LG",name:"Storage Room",cab:1,sn:"114868"},
+  15: {fl:"LG",name:"Bakery Store (บานคู่)",cab:1,sn:"114278"},
+  16: {fl:"LG",name:"Bakery Store (บานเดี๋ยว)",cab:1,sn:"119960"},
+  17: {fl:"LG",name:"Connecting door HK office",cab:1,sn:"114950"},
+  18: {fl:"LG",name:"Dishwash 1",cab:1,sn:"114914"},
+  19: {fl:"LG",name:"Dishwash Area",cab:1,sn:"114912"},
+  20: {fl:"LG",name:"Diswash1",cab:1,sn:"239/KIDI"},
+  21: {fl:"LG",name:"Cold Kitchen",cab:1,sn:"118855"},
+  22: {fl:"LG",name:"Main Kitchen",cab:1,sn:"114838"},
+  23: {fl:"LG",name:"Main Kitchen",cab:1,sn:"114655"},
+  24: {fl:"LG",name:"Kitchen Room",cab:1,sn:"114951"},
+  25: {fl:"LG",name:"Staff Canteen ประตูหน้า",cab:1,sn:"114876"},
+  26: {fl:"LG",name:"Staff Canteen (Recreation)",cab:1,sn:"4454/HAFELE"},
+  27: {fl:"LG",name:"CDU For cold Room",cab:1,sn:"114558"},
+  28: {fl:"LG",name:"Cheff's Office",cab:1,sn:"119574"},
+  29: {fl:"LG",name:"Recycable Area",cab:1,sn:"113961"},
+  30: {fl:"LG",name:"Sorting Area",cab:1,sn:"113365"},
+  31: {fl:"LG",name:"Waste Dock",cab:1,sn:"114155"},
+  32: {fl:"LG",name:"Uniform Issue",cab:1,sn:"138168"},
+  33: {fl:"LG",name:"Line sorting",cab:1,sn:"114919"},
+  34: {fl:"LG",name:"RFID Linen Source",cab:1,sn:"118843"},
+  35: {fl:"LG",name:"Receiving office",cab:1,sn:"117790"},
+  36: {fl:"LG",name:"Loading",cab:1,sn:"114727"},
+  37: {fl:"LG",name:"ICT Smart Room",cab:1,sn:"114856"},
+  38: {fl:"LG",name:"EE",cab:1,sn:"114832"},
+  39: {fl:"LG",name:"EE Room",cab:1,sn:"130407"},
+  40: {fl:"LG",name:"Service Corridor",cab:1,sn:"118472"},
+  41: {fl:"LG",name:"Service Corridor (hF)",cab:1,sn:"117729"},
+  42: {fl:"LG",name:"Service Corridor ริมอาคาร",cab:1,sn:"114665"},
+  43: {fl:"LG",name:"Service Corridor and loading",cab:1,sn:"270/KIDI_611"},
+  44: {fl:"LG",name:"Service Corridor",cab:1,sn:"114261"},
+  45: {fl:"LG",name:"Ice Carving",cab:1,sn:"114295"},
+  46: {fl:"LG",name:"ริมนอกอาคาร",cab:1,sn:"117185"},
+  47: {fl:"LG",name:"Clinic บานคู่",cab:1,sn:"118768"},
+  48: {fl:"LG",name:"Clinic บานเดี่ยว",cab:1,sn:"112008"},
+  49: {fl:"LG",name:"Interview Room",cab:1,sn:"118723"},
+  50: {fl:"LG",name:"Corridor ในล็อคเกอร์หญิง",cab:1,sn:"117202"},
+  51: {fl:"LG",name:"Service Corridor",cab:1,sn:"118506"},
+  52: {fl:"LG",name:"Beverage Store",cab:1,sn:"131282"},
+  53: {fl:"6",name:"Kids Club",cab:1,sn:"H015554-HAFELE"},
+  54: {fl:"G",name:"Driver Room",cab:1,sn:"115519"},
+  55: {fl:"1",name:"Canubi",cab:1,sn:"2779/HAFELE"},
+  56: {fl:"G",name:"Guard House บานนอก",cab:1,sn:"129505"},
+  57: {fl:"G",name:"ประตูใต้ Ramp G",cab:1,sn:"114643"},
+  58: {fl:"G",name:"Guard House บานใน",cab:1,sn:"124233"},
+  59: {fl:"5",name:"Poor Bar 5 floor",cab:1,sn:"12822 D27/3"},
+  60: {fl:"5",name:"Fitness",cab:1,sn:"HAFELE/4485/4723"},
+  61: {fl:"6",name:"ST01",cab:1,sn:"118789"},
+  62: {fl:"LG",name:"ST01 (BOH)",cab:1,sn:"119511"},
+  63: {fl:"M",name:"Storage",cab:1,sn:"118591"},
+  64: {fl:"6",name:"ห้อง CHP & CDP",cab:1,sn:"129571"},
+  65: {fl:"6",name:"Toilet/Foyer",cab:1,sn:"114905"},
+  66: {fl:"6",name:"Female's WC",cab:1,sn:"117211"},
+  67: {fl:"6",name:"Male's WC",cab:1,sn:"117245"},
+  68: {fl:"6",name:"ICT Smart Room",cab:1,sn:"114123"},
+  69: {fl:"6",name:"ST02",cab:1,sn:"117232"},
+  70: {fl:"6",name:"Server Room",cab:1,sn:"152324"},
+  71: {fl:"6",name:"Office 3",cab:1,sn:"111219"},
+  72: {fl:"6",name:"ห้อง IT",cab:1,sn:"134524"},
+  73: {fl:"6",name:"Training",cab:1,sn:"112265"},
+  74: {fl:"6",name:"Printer/Scanner Machine",cab:1,sn:"118639"},
+  75: {fl:"6",name:"Service Corridor 3",cab:1,sn:"119033"},
+  76: {fl:"6",name:"ห้อง Store/fire rated 2hr.",cab:1,sn:"118542"},
+  77: {fl:"6",name:"Private ห้องซ้าย",cab:1,sn:"111258"},
+  78: {fl:"6",name:"Private ห้องขวา",cab:1,sn:"124052"},
+  79: {fl:"6",name:"ห้อง Manager Room",cab:1,sn:"117541"},
+  80: {fl:"6",name:"Staff WC",cab:1,sn:"114188"},
+  81: {fl:"6",name:"Storage cleaning Equipment",cab:1,sn:"117230"},
+  82: {fl:"6",name:"Shelves For Linen",cab:1,sn:"117198"},
+  83: {fl:"6",name:"ห้อง AHU For Spa",cab:1,sn:"113560"},
+  84: {fl:"3",name:"Storage & Meeting Room",cab:1,sn:"114659"},
+  85: {fl:"6",name:"PANTRY+STAFF CANTEEN",cab:1,sn:"124004"},
+  86: {fl:"6",name:"MEETING",cab:1,sn:"118390"},
+  87: {fl:"6",name:"Office 1",cab:1,sn:"111217"},
+  88: {fl:"6",name:"Office 1",cab:1,sn:"111248"},
+  89: {fl:"6",name:"Office 1",cab:1,sn:"111252"},
+  90: {fl:"3",name:"Storage (2)",cab:1,sn:"113164"},
+  91: {fl:"3",name:"Service Corridor",cab:1,sn:"114411"},
+  92: {fl:"3",name:"BOH of Storage",cab:1,sn:"114228"},
+  93: {fl:"6",name:"ประตู Task ชุดที่ 3",cab:1,sn:"21313"},
+  94: {fl:"6",name:"ประตู Task ชุดที่ 4",cab:1,sn:"21345"},
+  95: {fl:"6",name:"ประตู Task ชุดที่ 2",cab:1,sn:"31355"},
+  96: {fl:"6",name:"ประตู Task ชุดที่ 1",cab:1,sn:"22222"},
+  97: {fl:"3",name:"Service Corridor ติด Retail",cab:1,sn:"118595"},
+  98: {fl:"3",name:"Outdoor Storage (1)",cab:1,sn:"126246"},
+  99: {fl:"3",name:"Service Corridor (h6)",cab:1,sn:"113516"},
+  100: {fl:"3",name:"Outdoor Storage",cab:1,sn:"123414"},
+  101: {fl:"3",name:"Fireman lift Lobby",cab:1,sn:"118759"},
+  102: {fl:"3",name:"GL.h8",cab:1,sn:"113421"},
+  103: {fl:"M",name:"Service Corridor",cab:1,sn:"118619"},
+  104: {fl:"L",name:"Front Office (บานใน)",cab:1,sn:"117178"},
+  105: {fl:"L",name:"Front Office",cab:1,sn:"113740"},
+  106: {fl:"M",name:"Function Lift Lobby",cab:1,sn:"118559"},
+  107: {fl:"1",name:"Maid Station",cab:1,sn:"113119"},
+  108: {fl:"M",name:"AHU For Lobby",cab:1,sn:"114304"},
+  109: {fl:"1",name:"BQ Kitchen & Service Corridor",cab:1,sn:"118581"},
+  110: {fl:"1",name:"BQ Kitchen",cab:1,sn:"112886"},
+  111: {fl:"1",name:"Function Lift",cab:1,sn:"118733"},
+  112: {fl:"1",name:"Service Corridor and Pantry",cab:1,sn:"129546"},
+  113: {fl:"1",name:"Corridor Retail (2) ติดห้องน้ำ",cab:1,sn:"119631"},
+  114: {fl:"1",name:"Corridor Retail (1) ติดห้องครัว",cab:1,sn:"118470"},
+  115: {fl:"2",name:"Storage and Service Corridor",cab:1,sn:"112628"},
+  116: {fl:"2",name:"Service Corridor ติด Retail",cab:1,sn:"118366"},
+  117: {fl:"2",name:"Function Lift Lobby + Corridor",cab:1,sn:"118539"},
+  118: {fl:"2",name:"Kitchen and Service Corridor",cab:1,sn:"118805"},
+  119: {fl:"42",name:"Lower Sky Deck",cab:1,sn:"125690"},
+  120: {fl:"42",name:"Lower Sky Deck",cab:1,sn:"125917"},
+  121: {fl:"L5",name:"Service Corridor (Retail)",cab:1,sn:"118296"},
+  122: {fl:"LG",name:"St01",cab:1,sn:"143465"},
+  123: {fl:"LG",name:"St02",cab:1,sn:"118586"},
+  124: {fl:"LG",name:"Fireman Lift Lobby",cab:1,sn:"542431"},
+  125: {fl:"LG",name:"ห้อง Guest Lift Lobby",cab:1,sn:"114906"},
+  126: {fl:"B3",name:"Fireman Lift Lobby",cab:1,sn:"118729"},
+  127: {fl:"B3",name:"ห้อง ST1",cab:1,sn:"118557"},
+  128: {fl:"B3",name:"ห้อง ST2",cab:1,sn:"117170"},
+  129: {fl:"B3",name:"ห้อง R-S (hE) บานใน",cab:1,sn:"927873"},
+  130: {fl:"B3",name:"R-SD01 (hB) บาน 3",cab:1,sn:"725873"},
+  131: {fl:"B2",name:"Fireman Lift Lobby",cab:1,sn:"113189"},
+  132: {fl:"B2",name:"ห้อง ST1",cab:1,sn:"119608"},
+  133: {fl:"B2",name:"ห้อง ST2",cab:1,sn:"118629"},
+  134: {fl:"B2",name:"ห้อง R-S (hA) บาน 2",cab:1,sn:"585873"},
+  135: {fl:"B2",name:"ห้อง R-S (hB) บาน 3",cab:1,sn:"569873"},
+  136: {fl:"B2",name:"ห้อง R-S (hE) บาน 1",cab:1,sn:"785873"},
+  137: {fl:"-",name:"Personal Lift",cab:1,sn:"585873"},
+  138: {fl:"B1",name:"Fireman Lift Lobby",cab:1,sn:"113367"},
+  139: {fl:"B1",name:"ห้อง R-SD01 (HA)",cab:1,sn:"923873"},
+  140: {fl:"B1",name:"ห้อง R-SD01 (HB)",cab:1,sn:"789873"},
+  141: {fl:"B1",name:"ห้อง R-SD01 (HE)",cab:1,sn:"787873"},
+  142: {fl:"B1",name:"ห้อง ST1",cab:1,sn:"118634"},
+  143: {fl:"B1",name:"ห้อง ST2",cab:1,sn:"118468"},
+  144: {fl:"G",name:"Fireman Lift Lobby",cab:1,sn:"119547"},
+  145: {fl:"G",name:"FORYER 1",cab:1,sn:"114839"},
+  146: {fl:"G",name:"FORYER 2",cab:1,sn:"114920"},
+  147: {fl:"G",name:"ST1 บานใน",cab:1,sn:"118760"},
+  148: {fl:"G",name:"ST1 บานนอก",cab:1,sn:"118482"},
+  149: {fl:"G",name:"VIP Entry",cab:1,sn:"124260"},
+  150: {fl:"G",name:"VIP Entry & corridor",cab:1,sn:"124729"},
+  151: {fl:"G",name:"Service corridor",cab:1,sn:"118463"},
+  152: {fl:"G",name:"ห้อง H1B",cab:1,sn:"117349"},
+  153: {fl:"G",name:"H-FST02",cab:1,sn:"117169"},
+  154: {fl:"G",name:"Master Key (MK1)",cab:1,sn:""},
+  155: {fl:"G",name:"Master Key (MK2)",cab:1,sn:""},
+  156: {fl:"G",name:"Fire Command",cab:1,sn:"113535"},
+  157: {fl:"L",name:"Fireman Lift Lobby",cab:1,sn:"113173"},
+  158: {fl:"L",name:"ห้อง ST1",cab:1,sn:"119617"},
+  159: {fl:"L",name:"ห้อง ST2",cab:1,sn:"118745"},
+  160: {fl:"L",name:"Service corridor ติด Retail",cab:1,sn:"118372"},
+  161: {fl:"L",name:"Service Corridor (D04)",cab:2,sn:"118568"},
+  162: {fl:"L",name:"Service Corridor (D05)",cab:2,sn:"113776"},
+  163: {fl:"L",name:"ห้องหลัง ST1 Service corridor",cab:2,sn:"136682"},
+  164: {fl:"L",name:"BOH Kitchen",cab:2,sn:"113366"},
+  165: {fl:"L",name:"Luggage Room",cab:2,sn:"113527"},
+  166: {fl:"M",name:"Fireman Lift Lobby",cab:2,sn:"118538"},
+  167: {fl:"G",name:"FL.G Exit Gourmet 1 (MK1)",cab:2,sn:"118559"},
+  168: {fl:"M",name:"ห้อง ST1",cab:2,sn:"119549"},
+  169: {fl:"M",name:"ห้อง ST2",cab:2,sn:"118683"},
+  170: {fl:"G",name:"FL.G Exit Gourmet 2 (MK1)",cab:2,sn:"118619"},
+  171: {fl:"G",name:"FL.G D1/2 (MK1)",cab:2,sn:"118733"},
+  172: {fl:"1",name:"Fireman Lift Lobby & Corridor",cab:2,sn:"118560"},
+  173: {fl:"1",name:"Fireman Lift Lobby & Corridor",cab:2,sn:"113544"},
+  174: {fl:"1",name:"Function Lift Lobby",cab:2,sn:"118533"},
+  175: {fl:"1",name:"ห้อง ST01 (BOH)",cab:2,sn:"118501"},
+  176: {fl:"1",name:"ห้อง ST1",cab:2,sn:"117213"},
+  177: {fl:"1",name:"ห้อง ST2",cab:2,sn:"117175"},
+  178: {fl:"1",name:"Grand ballroom",cab:2,sn:"114507"},
+  179: {fl:"1",name:"Floor Pantry (D06)",cab:2,sn:"113074"},
+  180: {fl:"1",name:"Floor Pantry (D05)",cab:2,sn:"129544"},
+  181: {fl:"2",name:"ห้อง Store",cab:2,sn:"114703"},
+  182: {fl:"2",name:"Fireman Lift Lobby",cab:2,sn:"118547"},
+  183: {fl:"2",name:"Fireman Lift Lobby (D05.1)",cab:2,sn:"114052"},
+  184: {fl:"2",name:"Fireman Lift Lobby (D04)",cab:2,sn:"118488"},
+  185: {fl:"2",name:"Kitchen",cab:2,sn:"114293"},
+  186: {fl:"G",name:"FL.G D1/1 (MK1)",cab:2,sn:"118805"},
+  187: {fl:"M",name:"Store (D05)",cab:2,sn:"114840"},
+  188: {fl:"M",name:"Store (D05.1)",cab:2,sn:"113791"},
+  189: {fl:"M",name:"FL.M D08/1 (MK2)",cab:2,sn:"118539"},
+  190: {fl:"1",name:"Pre-Function",cab:2,sn:"114273"},
+  191: {fl:"1",name:"Floor Pantry",cab:2,sn:"112753"},
+  192: {fl:"1",name:"FL.M D05 (MK2)",cab:2,sn:"118366"},
+  193: {fl:"3",name:"ST01 (BOH)",cab:2,sn:"118615"},
+  194: {fl:"3",name:"ST01",cab:2,sn:"117187"},
+  195: {fl:"3",name:"ST02",cab:2,sn:"118706"},
+  196: {fl:"4",name:"Fireman Lift Lobby & Prefunction",cab:2,sn:"117215"},
+  197: {fl:"4",name:"Floor Pantry (H5)",cab:2,sn:"113540"},
+  198: {fl:"4",name:"Floor Pantry (D06)",cab:2,sn:"112847"},
+  199: {fl:"5",name:"Pump Room",cab:2,sn:"113413"},
+  200: {fl:"5",name:"H-FST01",cab:2,sn:"118614"},
+  201: {fl:"5",name:"ST1(BOH)",cab:2,sn:"118612"},
+  202: {fl:"5",name:"ST2",cab:2,sn:"118765"},
+  203: {fl:"5",name:"Fireman Lift Lobby",cab:2,sn:"118601"},
+  204: {fl:"5",name:"ห้อง ST1",cab:2,sn:"118662"},
+  205: {fl:"5",name:"ห้อง ST2",cab:2,sn:"118728"},
+  206: {fl:"5",name:"ห้อง SPA",cab:2,sn:"119650"},
+  207: {fl:"5",name:"ห้อง Grand Room",cab:2,sn:"118476"},
+  208: {fl:"5",name:"ประตู D01",cab:2,sn:"118522"},
+  209: {fl:"5",name:"Master Key SPA (New)",cab:2,sn:"HTH19857MK3"},
+  210: {fl:"5",name:"Fl.5 ทางเข้าสปา (ขวา)",cab:2,sn:"HTH19857D01/4"},
+  211: {fl:"5",name:"Fl.5 ทางเข้าสปา (ซ้าย)",cab:2,sn:"HTH19857D01/5"},
+  212: {fl:"5",name:"ห้องเก็บของสปา",cab:2,sn:"HTH19857D02"},
+  213: {fl:"7",name:"Fireman Lift Lobby",cab:2,sn:"118536"},
+  214: {fl:"7",name:"Maid Station",cab:2,sn:"113350"},
+  215: {fl:"7",name:"Maid Toilet",cab:2,sn:"114412"},
+  216: {fl:"7",name:"ST01 (BOH)",cab:2,sn:"118632"},
+  217: {fl:"7",name:"ST01",cab:2,sn:"425546"},
+  218: {fl:"7",name:"ST02",cab:2,sn:"143455"},
+  219: {fl:"8",name:"Fireman Lift Lobby",cab:2,sn:"224643"},
+  220: {fl:"8",name:"Maid Station",cab:2,sn:"129508"},
+  221: {fl:"8",name:"EE Room",cab:2,sn:"114086"},
+  222: {fl:"8",name:"ST01 (BOH)",cab:2,sn:"118589"},
+  223: {fl:"8",name:"ST01",cab:2,sn:"118742"},
+  224: {fl:"8",name:"ST02",cab:2,sn:"143345"},
+  225: {fl:"9",name:"Fireman Lift Lobby",cab:2,sn:"332563"},
+  226: {fl:"9",name:"EE Room",cab:2,sn:"114871"},
+  227: {fl:"9",name:"ST01 (BOH)",cab:2,sn:"117223"},
+  228: {fl:"9",name:"ST01",cab:2,sn:"536552"},
+  229: {fl:"9",name:"ST02",cab:2,sn:"446633"},
+  230: {fl:"10",name:"Fireman Lift Lobby",cab:2,sn:"241244"},
+  231: {fl:"10",name:"Maid Station",cab:2,sn:"120338"},
+  232: {fl:"10",name:"EE Room",cab:2,sn:"114831"},
+  233: {fl:"10",name:"ST01 (BOH)",cab:2,sn:"334453"},
+  234: {fl:"10",name:"ST01",cab:2,sn:"118530"},
+  235: {fl:"10",name:"ST02",cab:2,sn:"443312"},
+  236: {fl:"11",name:"Fireman Lift Lobby",cab:2,sn:"643131"},
+  237: {fl:"11",name:"Maid Station",cab:2,sn:"129510"},
+  238: {fl:"11",name:"EE Room",cab:2,sn:"114867"},
+  239: {fl:"11",name:"ST01 (BOH)",cab:2,sn:"118652"},
+  240: {fl:"11",name:"ST01",cab:2,sn:"334455"},
+  241: {fl:"11",name:"ST02",cab:2,sn:"335364"},
+  242: {fl:"14",name:"Fireman Lift Lobby",cab:2,sn:"146563"},
+  243: {fl:"14",name:"Maid Station",cab:2,sn:"113337"},
+  244: {fl:"14",name:"EE Room",cab:2,sn:"114796"},
+  245: {fl:"14",name:"ST01 (BOH)",cab:2,sn:"118569"},
+  246: {fl:"14",name:"ST01",cab:2,sn:"143141"},
+  247: {fl:"14",name:"ST02",cab:2,sn:"336553"},
+  248: {fl:"15",name:"Fireman Lift Lobby",cab:2,sn:"524353"},
+  249: {fl:"15",name:"Maid Station",cab:2,sn:"120047"},
+  250: {fl:"15",name:"EE Room",cab:2,sn:"114042"},
+  251: {fl:"15",name:"ST01 (BOH)",cab:2,sn:"118799"},
+  252: {fl:"15",name:"ST01",cab:2,sn:"232425"},
+  253: {fl:"15",name:"ST02",cab:2,sn:"524652"},
+  254: {fl:"16",name:"Fireman Lift Lobby",cab:2,sn:"425442"},
+  255: {fl:"16",name:"EE Room",cab:2,sn:"114802"},
+  256: {fl:"16",name:"ST01 (BOH)",cab:2,sn:"118666"},
+  257: {fl:"16",name:"ST01",cab:2,sn:"146432"},
+  258: {fl:"16",name:"ST02",cab:2,sn:"146431"},
+  259: {fl:"17",name:"Fireman Lift Lobby",cab:2,sn:"654356"},
+  260: {fl:"17",name:"Maid Station",cab:2,sn:"113331"},
+  261: {fl:"17",name:"EE Room",cab:2,sn:"114160"},
+  262: {fl:"17",name:"ST01 (BOH)",cab:2,sn:"118712"},
+  263: {fl:"17",name:"ST01",cab:2,sn:"118490"},
+  264: {fl:"17",name:"ST02",cab:2,sn:"234453"},
+  265: {fl:"18",name:"Fireman Lift Lobby",cab:2,sn:"135234"},
+  266: {fl:"18",name:"Maid Station",cab:2,sn:"113519"},
+  267: {fl:"18",name:"Maid Toilet",cab:2,sn:"114235"},
+  268: {fl:"18",name:"EE Room",cab:2,sn:"114216"},
+  269: {fl:"18",name:"ST01 (BOH)",cab:2,sn:"119569"},
+  270: {fl:"18",name:"ST01",cab:2,sn:"119502"},
+  271: {fl:"18",name:"ST02",cab:2,sn:"331254"},
+  272: {fl:"19",name:"Fireman Lift Lobby",cab:2,sn:"117327"},
+  273: {fl:"1",name:"EE Room",cab:2,sn:"114878"},
+  274: {fl:"1",name:"ST01 (BOH)",cab:2,sn:"118467"},
+  275: {fl:"2",name:"ST01",cab:2,sn:"343632"},
+  276: {fl:"2",name:"ST02",cab:2,sn:"525413"},
+  277: {fl:"2",name:"Fireman Lift Lobby",cab:2,sn:"118492"},
+  278: {fl:"2",name:"EE Room",cab:2,sn:"130432"},
+  279: {fl:"42",name:"ST01 (BOH)",cab:2,sn:"117333"},
+  280: {fl:"42",name:"ST01",cab:2,sn:"132125"},
+  281: {fl:"L5",name:"ST02",cab:2,sn:"143635"},
+  282: {fl:"LG",name:"Fireman Lift Lobby",cab:2,sn:"118785"},
+  283: {fl:"LG",name:"Maid Toilet",cab:2,sn:"114153"},
+  284: {fl:"LG",name:"ST01 (BOH)",cab:2,sn:"118719"},
+  285: {fl:"LG",name:"ST01",cab:2,sn:"541253"},
+  286: {fl:"B3",name:"ST02",cab:2,sn:"534354"},
+  287: {fl:"B3",name:"EE Room",cab:2,sn:"114957"},
+  288: {fl:"B3",name:"Fireman Lift Lobby",cab:2,sn:"117224"},
+  289: {fl:"B3",name:"Maid Station",cab:2,sn:"113241"},
+  290: {fl:"B3",name:"EE Room",cab:2,sn:"113923"},
+  291: {fl:"B2",name:"ST01 (BOH)",cab:2,sn:"118534"},
+  292: {fl:"B2",name:"ST01",cab:2,sn:"133425"},
+  293: {fl:"B2",name:"ST02",cab:2,sn:"233546"},
+  294: {fl:"B2",name:"Fireman Lift Lobby",cab:2,sn:"117229"},
+  295: {fl:"B2",name:"Maid Station",cab:2,sn:"117166"},
+  296: {fl:"B2",name:"EE Room",cab:2,sn:"114947"},
+  297: {fl:"B2",name:"ST01 (BOH)",cab:2,sn:"118549"},
+  298: {fl:"B1",name:"ST01",cab:2,sn:"432141"},
+  299: {fl:"B1",name:"ST02",cab:2,sn:"134141"},
+  300: {fl:"14",name:"Fireman Lift Lobby",cab:2,sn:"118359"},
+  301: {fl:"14",name:"Maid Station",cab:2,sn:"110782"},
+  302: {fl:"14",name:"Maid Toilet",cab:2,sn:"114330"},
+  303: {fl:"14",name:"ST01 (BOH)",cab:2,sn:"118572"},
+  304: {fl:"14",name:"ST01",cab:2,sn:"233556"},
+  305: {fl:"14",name:"ST02",cab:2,sn:"343314"},
+  306: {fl:"15",name:"Fireman Lift Lobby",cab:2,sn:"443552"},
+  307: {fl:"15",name:"ST01 (BOH)",cab:2,sn:"118713"},
+  308: {fl:"15",name:"ST01",cab:2,sn:"118502"},
+  309: {fl:"15",name:"ST02",cab:2,sn:"435241"},
+  310: {fl:"15",name:"Fireman Lift Lobby",cab:2,sn:"118597"},
+  311: {fl:"15",name:"ST01 (BOH)",cab:2,sn:"119621"},
+  312: {fl:"16",name:"ST01",cab:2,sn:"341246"},
+  313: {fl:"16",name:"ST02",cab:2,sn:"235341"},
+  314: {fl:"16",name:"Fireman Lift Lobby",cab:2,sn:"118631"},
+  315: {fl:"16",name:"Maid Station",cab:2,sn:"110756"},
+  316: {fl:"16",name:"Maid Toilet",cab:2,sn:"113501"},
+  317: {fl:"17",name:"ST01 (BOH)",cab:2,sn:"118777"},
+  318: {fl:"17",name:"ST01",cab:2,sn:"144226"},
+  319: {fl:"17",name:"ST02",cab:2,sn:"142525"},
+  320: {fl:"17",name:"Fireman Lift Lobby",cab:2,sn:"118658"},
+  321: {fl:"18",name:"Maid Station",cab:2,sn:"110654"},
+  322: {fl:"18",name:"ST01 (BOH)",cab:2,sn:"118526"},
+  323: {fl:"18",name:"ST01",cab:2,sn:"125524"},
+  324: {fl:"18",name:"ST02",cab:2,sn:"118310"},
+  325: {fl:"18",name:"Fireman Lift Lobby",cab:2,sn:"117843"},
+  326: {fl:"18",name:"ห้องข้าง Fireman",cab:2,sn:"117179"},
+  327: {fl:"18",name:"ST01 (BOH)",cab:2,sn:"118592"},
+  328: {fl:"19",name:"ST1 บานนอก",cab:2,sn:"118464"},
+  329: {fl:"19",name:"ST1 บานใน",cab:2,sn:"118514"},
+  330: {fl:"1",name:"ST2 บานนอก",cab:2,sn:"118698"},
+  331: {fl:"1",name:"ST2 บานใน",cab:2,sn:"118681"},
+  332: {fl:"2",name:"Fireman Lift Lobby",cab:2,sn:"118466"},
+  333: {fl:"2",name:"Maid Station",cab:2,sn:"110781"},
+  334: {fl:"2",name:"Maid Toilet",cab:2,sn:"114323"},
+  335: {fl:"42",name:"ST01 (BOH)",cab:2,sn:"118495"},
+  336: {fl:"42",name:"ST01",cab:2,sn:"643631"},
+  337: {fl:"L5",name:"ST02",cab:2,sn:"132235"},
+  338: {fl:"LG",name:"Fireman Lift Lobby",cab:2,sn:"117274"},
+  339: {fl:"LG",name:"Maid Station",cab:2,sn:"110760"},
+  340: {fl:"LG",name:"ST01 (BOH)",cab:2,sn:"119572"},
+  341: {fl:"LG",name:"ST01",cab:2,sn:"118507"},
+  342: {fl:"B3",name:"ST02",cab:2,sn:"118616"},
+  343: {fl:"B3",name:"Fireman Lift Lobby",cab:2,sn:"117247"},
+  344: {fl:"B3",name:"Maid Station",cab:2,sn:"110797"},
+  345: {fl:"B3",name:"ST01 (BOH)",cab:2,sn:"118685"},
+  346: {fl:"B3",name:"ST01",cab:2,sn:"119516"},
+  347: {fl:"B2",name:"ST02",cab:2,sn:"118599"},
+  348: {fl:"B2",name:"Fireman Lift Lobby",cab:2,sn:"117193"},
+  349: {fl:"B2",name:"
