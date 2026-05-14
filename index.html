@@ -42,45 +42,6 @@
     .progress-bar-fill{height:8px;background:var(--ok);transition:width .4s ease;}
     .progress-bar-err{height:8px;background:var(--accent);margin-top:2px;transition:width .4s ease;}
 
-    /* ─── SYNC BAR ─── */
-    .sync-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
-    .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--soft-line);flex-shrink:0;transition:background .3s;}
-    .sync-dot.ok{background:var(--ok);}
-    .sync-dot.syncing{background:var(--warn);animation:pulse .8s infinite;}
-    .sync-dot.err{background:var(--accent);}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .sync-text{font-size:11px;font-family:var(--mono);color:var(--muted);}
-    .active-users{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-    .user-chip{font-size:10px;font-family:var(--mono);background:var(--ink);color:#fff;padding:2px 8px;border-radius:2px;}
-    .user-chip.self{background:var(--ok);}
-
-    /* ─── CHECKPOINT BANNER ─── */
-    .checkpoint-banner{background:#fffbe6;border:1px solid #c9a227;padding:10px 14px;margin-bottom:12px;display:none;font-size:12px;font-family:var(--mono);color:#7a5c00;}
-    .checkpoint-banner strong{font-weight:700;}
-
-    /* ─── STATS ─── */
-    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--paper2);margin-bottom:18px;}
-    .stat-item{padding:14px;border-right:1px solid var(--line);text-align:center;}
-    .stat-item:last-child{border-right:none;}
-    .stat-num{font-size:30px;font-family:var(--serif);font-weight:700;display:block;}
-    .stat-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;color:var(--muted);}
-
-    /* ─── CONTROLS ─── */
-    .controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
-    .search-input{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
-    .filter-select{padding:9px 10px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
-    .ctrl-btn{padding:9px 14px;border:1px solid var(--line);background:var(--paper2);cursor:pointer;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
-    .ctrl-btn.export{background:var(--ink);color:#fff;border-color:var(--ink);}
-    .ctrl-btn.checkpoint{background:var(--warn);color:#fff;border-color:var(--warn);}
-    .ctrl-btn.reset-st{background:var(--accent);color:#fff;border-color:var(--accent);}
-    <button class="ctrl-btn" onclick="loadFromCloud()">
-  <i class="ti ti-download"></i> โหลดล่าสุด
-</button>
-
-<button class="ctrl-btn export" onclick="saveToCloud()">
-  <i class="ti ti-upload"></i> บันทึกขึ้นระบบ
-</button>
-
     /* ─── TABLE ─── */
     .table-container{background:var(--paper2);border:1px solid var(--line);overflow-y:auto;max-height:60vh;overflow-x:auto;}
     table{width:100%;border-collapse:collapse;min-width:1000px;}
@@ -132,20 +93,10 @@
       <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory — DTBK</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-      <button class="ctrl-btn checkpoint" onclick="saveCheckpoint()"><i class="ti ti-device-floppy"></i> บันทึก Checkpoint</button>
       <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> Excel</button>
       <button class="ctrl-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ออก</button>
     </div>
   </div>
-
-  <!-- SYNC BAR -->
-  <div class="sync-bar">
-    <div class="sync-dot" id="sync-dot"></div>
-    <span class="sync-text" id="sync-text">กำลังโหลด...</span>
-  </div>
-
-  <!-- CHECKPOINT BANNER -->
-  <div class="checkpoint-banner" id="cp-banner"></div>
 
   <!-- PROGRESS -->
   <div class="progress-band">
@@ -212,8 +163,171 @@
 
 <div id="toast"></div>
 
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Key Security - DTBK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --paper:#F7F3EA; --paper2:#FFFDF8; --ink:#111111;
+      --muted:#6E6A61; --line:#1A1A1A; --soft-line:#D8D0C2;
+      --accent:#8A1F11; --ok:#245C37; --warn:#9A6A16;
+      --blue:#1a5276;
+      --serif:'Noto Serif Thai',serif; --sans:'IBM Plex Sans Thai',sans-serif; --mono:'IBM Plex Mono',monospace;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--sans);background:var(--paper);color:var(--ink);}
+
+    /* ─── LOGIN ─── */
+    #login-screen{position:fixed;inset:0;background:var(--paper);display:flex;align-items:center;justify-content:center;z-index:9999;}
+    .login-box{width:360px;background:var(--paper2);border:1px solid var(--line);padding:32px;box-shadow:10px 10px 0 rgba(0,0,0,0.1);}
+    .login-box h1{font-family:var(--serif);margin-bottom:6px;border-bottom:2px solid var(--line);padding-bottom:10px;font-size:28px;}
+    .login-box p{color:var(--muted);font-size:13px;margin-bottom:20px;}
+    .login-box input{width:100%;padding:12px;margin-bottom:14px;border:1px solid var(--line);font-family:var(--mono);background:var(--paper);font-size:14px;}
+    .login-btn{width:100%;padding:12px;background:var(--ink);color:#fff;border:none;cursor:pointer;font-weight:600;font-size:14px;letter-spacing:1px;}
+    .login-err{color:var(--accent);font-size:12px;font-family:var(--mono);margin-top:8px;display:none;}
+
+    /* ─── APP ─── */
+    #app{display:none;padding:20px 20px 40px;}
+    .header{margin-bottom:16px;border-bottom:1px solid var(--line);padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;}
+    .header h2{font-family:var(--serif);font-size:38px;line-height:1;}
+
+    /* ─── PROGRESS BAND ─── */
+    .progress-band{background:var(--paper2);border:1px solid var(--line);margin-bottom:12px;padding:14px 16px;}
+    .progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px;}
+    .progress-label{font-size:12px;font-family:var(--mono);color:var(--muted);}
+    .progress-pct{font-size:22px;font-family:var(--serif);font-weight:700;}
+    .progress-bar-bg{height:8px;background:var(--soft-line);width:100%;}
+    .progress-bar-fill{height:8px;background:var(--ok);transition:width .4s ease;}
+    .progress-bar-err{height:8px;background:var(--accent);margin-top:2px;transition:width .4s ease;}
+
+    /* ─── STATS ─── */
+    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--paper2);margin-bottom:18px;}
+    .stat-item{padding:14px;border-right:1px solid var(--line);text-align:center;}
+    .stat-item:last-child{border-right:none;}
+    .stat-num{font-size:30px;font-family:var(--serif);font-weight:700;display:block;}
+    .stat-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;color:var(--muted);}
+
+    /* ─── CONTROLS ─── */
+    .controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+    .search-input{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
+    .filter-select{padding:9px 10px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
+    .ctrl-btn{padding:9px 14px;border:1px solid var(--line);background:var(--paper2);cursor:pointer;font-size:13px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+    .ctrl-btn.export{background:var(--ink);color:#fff;border-color:var(--ink);}
+    .ctrl-btn.reset-st{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+    /* ─── TABLE ─── */
+    .table-container{background:var(--paper2);border:1px solid var(--line);overflow-y:auto;max-height:60vh;overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;min-width:1000px;}
+    thead th{position:sticky;top:0;background:var(--paper2);border-bottom:3px double var(--line);padding:10px 12px;text-align:left;font-size:11px;font-family:var(--mono);z-index:10;white-space:nowrap;}
+    tbody td{padding:8px 12px;border-bottom:1px solid var(--soft-line);font-size:13px;vertical-align:middle;}
+    .col-no{width:55px;color:var(--muted);font-family:var(--mono);font-size:12px;}
+    .col-fl{width:60px;text-align:center;}
+    .fl-badge{display:inline-block;font-weight:700;font-size:12px;font-family:var(--mono);background:var(--ink);color:#fff;padding:2px 6px;min-width:32px;text-align:center;}
+    .status-btns{display:flex;gap:4px;}
+    .s-btn{width:30px;height:30px;border:1px solid var(--soft-line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .s-btn.ok.active{background:var(--ok);color:#fff;border-color:var(--ok);}
+    .s-btn.err.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .editable-cell{width:100%;border:none;background:transparent;font-size:13px;outline:none;font-family:var(--sans);color:var(--ink);}
+    .editable-cell:focus{background:#fff;border-bottom:1px dashed var(--line);}
+    .qty-input{width:52px;border:1px solid var(--soft-line);background:var(--paper);padding:3px 6px;text-align:center;font-family:var(--mono);font-size:13px;}
+    tbody tr:hover{background:#f0ebe0;}
+    tbody tr.row-ok{background:#eef6f0;}
+    tbody tr.row-err{background:#fdf0ee;}
+    .footer-note{text-align:right;font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono);}
+    .sn-cell{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--paper);padding:2px 6px;border-radius:3px;border:1px solid var(--soft-line);}
+    @media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr);}.header h2{font-size:28px;}}
+
+    #toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:#fff;padding:10px 18px;font-size:13px;font-family:var(--mono);opacity:0;transition:opacity .3s;pointer-events:none;z-index:9999;}
+    #toast.show{opacity:1;}
+  </style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <h1>Security Desk</h1>
+    <p>DTBK — Key Control Inventory</p>
+    <input type="password" id="pw" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
+    <p class="login-err" id="login-err">รหัสผ่านไม่ถูกต้อง</p>
+  </div>
+</div>
+
+<div id="app">
+  <div class="header">
+    <div>
+      <h2>Key Checklist</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory — DTBK</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> ส่งออก Excel</button>
+      <button class="ctrl-btn" onclick="doLogout()"><i class="ti ti-logout"></i> ออกจากระบบ</button>
+    </div>
+  </div>
+
+  <div class="progress-band">
+    <div class="progress-top">
+      <span class="progress-label">ความคืบหน้าการตรวจสอบ</span>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="prog-ok" style="width:0%"></div></div>
+    <div class="progress-bar-bg" style="margin-top:3px;"><div class="progress-bar-err" id="prog-err" style="width:0%"></div></div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-num" id="t-total">0</span><span class="stat-label">ทั้งหมด</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-ok" style="color:var(--ok)">0</span><span class="stat-label">ใช้ได้</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-err" style="color:var(--accent)">0</span><span class="stat-label">ใช้ไม่ได้</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-wait" style="color:var(--warn)">0</span><span class="stat-label">ยังไม่ตรวจ</span></div>
+  </div>
+
+  <div class="controls">
+    <input type="text" id="search" class="search-input" placeholder="ค้นหาชื่อ / S/N / ชั้น..." oninput="render()">
+    <select id="f-cab" class="filter-select" onchange="render()">
+      <option value="">ทุกตู้</option>
+      <option value="1">ตู้ 1</option>
+      <option value="2">ตู้ 2</option>
+    </select>
+    <select id="f-status" class="filter-select" onchange="render()">
+      <option value="">ทุกสถานะ</option>
+      <option value="0">ยังไม่ตรวจ</option>
+      <option value="1">ใช้ได้</option>
+      <option value="2">ใช้ไม่ได้</option>
+    </select>
+    <button class="ctrl-btn reset-st" onclick="resetAll()"><i class="ti ti-refresh"></i> รีเซ็ตสถานะ</button>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-no">NO.</th>
+          <th class="col-fl">ชั้น</th>
+          <th style="min-width:160px">ชื่อเดิม</th>
+          <th style="min-width:160px">ชื่อใหม่</th>
+          <th style="width:100px">S/N</th>
+          <th style="width:70px;text-align:center;">จำนวน</th>
+          <th style="width:85px;text-align:center;">ตู้</th>
+          <th style="width:100px">สถานะ</th>
+          <th style="min-width:180px">หมายเหตุ</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-// ─── RAW DATA ────────────────────────────────────────────────────────────────
+// RAW DATA - ใส่ข้อมูลที่เหลือตามโครงสร้างนี้ให้ครบครับ
 const RAW = {
   1: {fl:"LG",name:"Purshasing office",cab:1,sn:"118954"},
   2: {fl:"LG",name:"Purshasing office",cab:1,sn:"119842"},
@@ -563,73 +677,211 @@ const RAW = {
   346: {fl:"B3",name:"ST01",cab:2,sn:"119516"},
   347: {fl:"B2",name:"ST02",cab:2,sn:"118599"},
   348: {fl:"B2",name:"Fireman Lift Lobby",cab:2,sn:"117193"},
-  349: {fl:"B2",name:"ห้องข้าง Fireman",cab:2,sn:"117487"},
+  349: {fl:"B2",name:"EE Room",cab:2,sn:"114947"}
   350: {fl:"B2",name:"Maid Toilet",cab:2,sn:"112755"},
-  351: {fl:"B2",name:"ST01 (BOH)",cab:2,sn:"119488"},
-  352: {fl:"B2",name:"ST01",cab:2,sn:"117325"},
-  353: {fl:"B2",name:"ST02",cab:2,sn:"118478"},
-  354: {fl:"B1",name:"Fireman Lift Lobby",cab:2,sn:"118578"},
-  355: {fl:"33",name:"Maid Station",cab:3,sn:"110868"},
-  356: {fl:"33",name:"ST01 (BOH)",cab:3,sn:"118520"},
-  357: {fl:"33",name:"ST01",cab:3,sn:"119607"},
-  358: {fl:"33",name:"ST02",cab:3,sn:"117300"},
-  359: {fl:"34",name:"Fireman Lift Lobby",cab:3,sn:"118717"},
-  360: {fl:"34",name:"Maid Station",cab:3,sn:"110763"},
-  361: {fl:"34",name:"ST01 (BOH)",cab:3,sn:"118720"},
-  362: {fl:"34",name:"ST01",cab:3,sn:"118493"},
-  363: {fl:"34",name:"ST02",cab:3,sn:"118596"},
-  364: {fl:"35",name:"Fireman Lift Lobby",cab:3,sn:"118590"},
-  365: {fl:"35",name:"ห้องข้าง Fireman",cab:3,sn:"117156"},
-  366: {fl:"35",name:"Maid Station",cab:3,sn:"119096"},
-  367: {fl:"35",name:"ST01 (BOH)",cab:3,sn:"117200"},
-  368: {fl:"35",name:"ST01",cab:3,sn:"634435"},
-  369: {fl:"35",name:"ST02",cab:3,sn:"434634"},
-  370: {fl:"36",name:"Fireman Lift Lobby",cab:3,sn:"117248"},
-  371: {fl:"36",name:"Maid Station",cab:3,sn:"110674"},
-  372: {fl:"36",name:"ST01 (BOH)",cab:3,sn:"118617"},
-  373: {fl:"36",name:"ST01",cab:3,sn:"135214"},
-  374: {fl:"36",name:"ST02",cab:3,sn:"543425"},
-  375: {fl:"37",name:"Fireman Lift Lobby",cab:3,sn:"118633"},
-  376: {fl:"37",name:"Maid Station",cab:3,sn:"110815"},
-  377: {fl:"37",name:"ST01 (BOH)",cab:3,sn:"118702"},
-  378: {fl:"37",name:"ST01",cab:3,sn:"233412"},
-  379: {fl:"37",name:"ST02",cab:3,sn:"431234"},
-  380: {fl:"38",name:"Fireman Lift Lobby",cab:3,sn:"118471"},
-  381: {fl:"38",name:"Maid Station",cab:3,sn:"113874"},
-  382: {fl:"38",name:"ST01 (BOH)",cab:3,sn:"118509"},
-  383: {fl:"38",name:"ST01",cab:3,sn:"143564"},
-  384: {fl:"38",name:"ST02",cab:3,sn:"524523"},
-  385: {fl:"39",name:"Fireman Lift Lobby",cab:3,sn:"524544"},
-  386: {fl:"39",name:"ST01 (BOH)",cab:3,sn:"118496"},
-  387: {fl:"39",name:"ST01",cab:3,sn:"232566"},
-  388: {fl:"39",name:"ST02",cab:3,sn:"233145"},
-  389: {fl:"39M",name:"Fireman Lift Lobby",cab:3,sn:"118473"},
-  390: {fl:"39M",name:"Floor Pantry หน้าลิฟต์",cab:3,sn:"118776"},
-  391: {fl:"39M",name:"ST01 (BOH)",cab:3,sn:"534131"},
-  392: {fl:"39M",name:"ST01",cab:3,sn:"524636"},
-  393: {fl:"39M",name:"ST02",cab:3,sn:"118477"},
-  394: {fl:"40",name:"ST01",cab:3,sn:"233425"},
-  395: {fl:"42",name:"ST01",cab:3,sn:"118743"},
-  396: {fl:"42",name:"ST02",cab:3,sn:"136436"},
-  397: {fl:"6",name:"Fireman Lift Lobby",cab:3,sn:""},
-  398: {fl:"42",name:"ห้องลิฟต์",cab:3,sn:""},
-  399: {fl:"G",name:"FL.L D01 (MK2) Forest Bar",cab:3,sn:""},
-  400: {fl:"3",name:"ทางเชื่อมชั้น 3 ไปสวน",cab:3,sn:""},
-  401: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  402: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  403: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  404: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  405: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  406: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  407: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  408: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  409: {fl:"3",name:"Shutter Door On 3Floor",cab:3,sn:""},
-  410: {fl:"3",name:"Shutter Door On 3Floor",cab:3,sn:""},
-  411: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  412: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  413: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
-  414: {fl:"G",name:"FL.G D01B (MK1)",cab:3,sn:""},
-  415: {fl:"G",name:"FL.G D08/2 (MK2)",cab:3,sn:""}
+  351: {fl:"B2",name:"ST01 (BOH)",cab:2,sn:"119488"},
+  352: {fl:"B2",name:"ST01",cab:2,sn:"117325"},
+  353: {fl:"B2",name:"ST02",cab:2,sn:"118478"},
+  354: {fl:"B1",name:"Fireman Lift Lobby",cab:2,sn:"118578"},
+  355: {fl:"33",name:"Maid Station",cab:3,sn:"110868"},
+  356: {fl:"33",name:"ST01 (BOH)",cab:3,sn:"118520"},
+  357: {fl:"33",name:"ST01",cab:3,sn:"119607"},
+  358: {fl:"33",name:"ST02",cab:3,sn:"117300"},
+  359: {fl:"34",name:"Fireman Lift Lobby",cab:3,sn:"118717"},
+  360: {fl:"34",name:"Maid Station",cab:3,sn:"110763"},
+  361: {fl:"34",name:"ST01 (BOH)",cab:3,sn:"118720"},
+  362: {fl:"34",name:"ST01",cab:3,sn:"118493"},
+  363: {fl:"34",name:"ST02",cab:3,sn:"118596"},
+  364: {fl:"35",name:"Fireman Lift Lobby",cab:3,sn:"118590"},
+  365: {fl:"35",name:"ห้องข้าง Fireman",cab:3,sn:"117156"},
+  366: {fl:"35",name:"Maid Station",cab:3,sn:"119096"},
+  367: {fl:"35",name:"ST01 (BOH)",cab:3,sn:"117200"},
+  368: {fl:"35",name:"ST01",cab:3,sn:"634435"},
+  369: {fl:"35",name:"ST02",cab:3,sn:"434634"},
+  370: {fl:"36",name:"Fireman Lift Lobby",cab:3,sn:"117248"},
+  371: {fl:"36",name:"Maid Station",cab:3,sn:"110674"},
+  372: {fl:"36",name:"ST01 (BOH)",cab:3,sn:"118617"},
+  373: {fl:"36",name:"ST01",cab:3,sn:"135214"},
+  374: {fl:"36",name:"ST02",cab:3,sn:"543425"},
+  375: {fl:"37",name:"Fireman Lift Lobby",cab:3,sn:"118633"},
+  376: {fl:"37",name:"Maid Station",cab:3,sn:"110815"},
+  377: {fl:"37",name:"ST01 (BOH)",cab:3,sn:"118702"},
+  378: {fl:"37",name:"ST01",cab:3,sn:"233412"},
+  379: {fl:"37",name:"ST02",cab:3,sn:"431234"},
+  380: {fl:"38",name:"Fireman Lift Lobby",cab:3,sn:"118471"},
+  381: {fl:"38",name:"Maid Station",cab:3,sn:"113874"},
+  382: {fl:"38",name:"ST01 (BOH)",cab:3,sn:"118509"},
+  383: {fl:"38",name:"ST01",cab:3,sn:"143564"},
+  384: {fl:"38",name:"ST02",cab:3,sn:"524523"},
+  385: {fl:"39",name:"Fireman Lift Lobby",cab:3,sn:"524544"},
+  386: {fl:"39",name:"ST01 (BOH)",cab:3,sn:"118496"},
+  387: {fl:"39",name:"ST01",cab:3,sn:"232566"},
+  388: {fl:"39",name:"ST02",cab:3,sn:"233145"},
+  389: {fl:"39M",name:"Fireman Lift Lobby",cab:3,sn:"118473"},
+  390: {fl:"39M",name:"Floor Pantry หน้าลิฟต์",cab:3,sn:"118776"},
+  391: {fl:"39M",name:"ST01 (BOH)",cab:3,sn:"534131"},
+  392: {fl:"39M",name:"ST01",cab:3,sn:"524636"},
+  393: {fl:"39M",name:"ST02",cab:3,sn:"118477"},
+  394: {fl:"40",name:"ST01",cab:3,sn:"233425"},
+  395: {fl:"42",name:"ST01",cab:3,sn:"118743"},
+  396: {fl:"42",name:"ST02",cab:3,sn:"136436"},
+  397: {fl:"6",name:"Fireman Lift Lobby",cab:3,sn:""},
+  398: {fl:"42",name:"ห้องลิฟต์",cab:3,sn:""},
+  399: {fl:"G",name:"FL.L D01 (MK2) Forest Bar",cab:3,sn:""},
+  400: {fl:"3",name:"ทางเชื่อมชั้น 3 ไปสวน",cab:3,sn:""},
+  401: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  402: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  403: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  404: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  405: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  406: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  407: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  408: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  409: {fl:"3",name:"Shutter Door On 3Floor",cab:3,sn:""},
+  410: {fl:"3",name:"Shutter Door On 3Floor",cab:3,sn:""},
+  411: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  412: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  413: {fl:"G",name:"Remote Roller Shutter Door",cab:3,sn:""},
+  414: {fl:"G",name:"FL.G D01B (MK1)",cab:3,sn:""},
+  415: {fl:"G",name:"FL.G D08/2 (MK2)",cab:3,sn:""}
+};
+
+let data = [];
+const KEY = "dtbk_key_local_v2";
+
+function initData() {
+  const local = localStorage.getItem(KEY);
+  if (local) {
+    data = JSON.parse(local);
+  } else {
+    data = Object.entries(RAW).map(([id, item]) => ({
+      id: parseInt(id),
+      ...item,
+      newName: "",
+      qty: 1,
+      status: 0,
+      note: ""
+    }));
+    saveLocal();
+  }
+}
+
+function saveLocal() {
+  localStorage.setItem(KEY, JSON.stringify(data));
+  updateStats();
+}
+
+function login() {
+  if (document.getElementById('pw').value === '1234') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    initData();
+    render();
+  } else {
+    document.getElementById('login-err').style.display = 'block';
+  }
+}
+
+function doLogout() { location.reload(); }
+
+function updateStats() {
+  const total = data.length;
+  const ok = data.filter(d => d.status === 1).length;
+  const err = data.filter(d => d.status === 2).length;
+  const wait = total - ok - err;
+  const pct = total > 0 ? Math.round(((ok + err) / total) * 100) : 0;
+
+  document.getElementById('t-total').textContent = total;
+  document.getElementById('t-ok').textContent = ok;
+  document.getElementById('t-err').textContent = err;
+  document.getElementById('t-wait').textContent = wait;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-ok').style.width = (ok / total * 100) + '%';
+  document.getElementById('prog-err').style.width = (err / total * 100) + '%';
+}
+
+function render() {
+  const s = document.getElementById('search').value.toLowerCase();
+  const fCab = document.getElementById('f-cab').value;
+  const fSt = document.getElementById('f-status').value;
+  const tbody = document.getElementById('tbody');
+  
+  const filtered = data.filter(d => {
+    const matchSearch = d.name.toLowerCase().includes(s) || 
+                       (d.newName && d.newName.toLowerCase().includes(s)) || 
+                       d.sn.toLowerCase().includes(s) || 
+                       d.fl.toLowerCase().includes(s);
+    const matchCab = fCab === "" || d.cab.toString() === fCab;
+    const matchSt = fSt === "" || d.status.toString() === fSt;
+    return matchSearch && matchCab && matchSt;
+  });
+
+  tbody.innerHTML = filtered.map(d => `
+    <tr class="${d.status === 1 ? 'row-ok' : d.status === 2 ? 'row-err' : ''}">
+      <td class="col-no">${d.id}</td>
+      <td class="col-fl"><span class="fl-badge">${d.fl}</span></td>
+      <td>${d.name}</td>
+      <td><input class="editable-cell" value="${d.newName}" placeholder="..." onchange="updateRow(${d.id}, 'newName', this.value)"></td>
+      <td><span class="sn-cell">${d.sn || '-'}</span></td>
+      <td style="text-align:center;"><input type="number" class="qty-input" value="${d.qty}" onchange="updateRow(${d.id}, 'qty', this.value)"></td>
+      <td style="text-align:center;">#${d.cab}</td>
+      <td>
+        <div class="status-btns">
+          <button class="s-btn ok ${d.status === 1 ? 'active' : ''}" onclick="updateStatus(${d.id}, 1)"><i class="ti ti-check"></i></button>
+          <button class="s-btn err ${d.status === 2 ? 'active' : ''}" onclick="updateStatus(${d.id}, 2)"><i class="ti ti-x"></i></button>
+        </div>
+      </td>
+      <td><input class="editable-cell" value="${d.note}" placeholder="หมายเหตุ..." onchange="updateRow(${d.id}, 'note', this.value)"></td>
+    </tr>
+  `).join('');
+}
+
+function updateRow(id, field, val) {
+  const item = data.find(d => d.id === id);
+  if (item) {
+    item[field] = field === 'qty' ? parseInt(val) || 0 : val;
+    saveLocal();
+  }
+}
+
+function updateStatus(id, st) {
+  const item = data.find(d => d.id === id);
+  if (item) {
+    item.status = item.status === st ? 0 : st;
+    saveLocal();
+    render();
+  }
+}
+
+function resetAll() {
+  if (confirm('ต้องการรีเซ็ตสถานะทั้งหมด?')) {
+    data.forEach(d => { d.status = 0; d.note = ""; });
+    saveLocal();
+    render();
+    showToast('รีเซ็ตข้อมูลแล้ว');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function exportExcel() {
+  const exportData = data.map(d => ({
+    'NO': d.id, 'ชั้น': d.fl, 'ชื่อเดิม': d.name, 'ชื่อใหม่': d.newName, 'SN': d.sn, 'จำนวน': d.qty, 'ตู้': d.cab, 
+    'สถานะ': d.status === 1 ? 'ใช้ได้' : d.status === 2 ? 'ใช้ไม่ได้' : 'ยังไม่ตรวจ', 'หมายเหตุ': d.note
+  }));
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Inventory");
+  XLSX.writeFile(wb, `Key_Report_${new Date().toLocaleDateString()}.xlsx`);
+}
+</script>
+</body>
+</html>
 };
 
 // ─── STORAGE KEYS ────────────────────────────────────────────────────────────
