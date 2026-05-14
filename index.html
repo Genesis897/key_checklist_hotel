@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Key Security - Dusit Thani (415 Keys)</title>
+  <title>Key Security - Dusit Thani</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
@@ -73,17 +73,12 @@
   <div class="header">
     <div>
       <h2>Daily Key Checklist</h2>
-      <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory · 415 ดอก</p>
+      <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> Excel</button>
       <button class="ctrl-btn" onclick="location.reload()">ออกจากระบบ</button>
     </div>
-  </div>
-
-  <div class="info-banner">
-    <i class="ti ti-info-circle"></i>
-    <span>อัปเดต: ตรวจสอบและเติมข้อมูลชั้น (Floor) สำหรับกุญแจทั้ง 415 รายการเรียบร้อยแล้ว</span>
   </div>
 
   <div class="stats-bar">
@@ -131,7 +126,7 @@
 </div>
 
 <script>
-const KEY_DB = 'dusit_key_415_v5';
+const KEY_DB = 'dusit_key_v5';
 let keys = [];
 
 const RAW = {
