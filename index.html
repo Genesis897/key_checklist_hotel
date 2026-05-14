@@ -3,262 +3,715 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Key Security - Dusit Thani (Full 415 Keys)</title>
-
+  <title>Key Security - Dusit Thani (415 Keys)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@400;700&family=IBM+Plex+Sans+Thai:wght@300;400;600&family=IBM+Plex+Mono&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root {
-      --paper: #F7F3EA; --paper2: #FFFDF8; --ink: #111111;
-      --muted: #6E6A61; --line: #1A1A1A; --soft-line: #D8D0C2;
-      --accent: #8A1F11; --ok: #245C37;
-      --serif: 'Noto Serif Thai', serif; --sans: 'IBM Plex Sans Thai', sans-serif; --mono: 'IBM Plex Mono', monospace;
+      --paper:#F7F3EA; --paper2:#FFFDF8; --ink:#111111;
+      --muted:#6E6A61; --line:#1A1A1A; --soft-line:#D8D0C2;
+      --accent:#8A1F11; --ok:#245C37;
+      --serif:'Noto Serif Thai',serif; --sans:'IBM Plex Sans Thai',sans-serif; --mono:'IBM Plex Mono',monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--sans); background: var(--paper); color: var(--ink); }
-    #login-screen { position: fixed; inset: 0; background: var(--paper); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-    .login-box { width: 350px; background: var(--paper2); border: 1px solid var(--line); padding: 30px; box-shadow: 10px 10px 0 rgba(0,0,0,0.1); }
-    .login-box h1 { font-family: var(--serif); margin-bottom: 20px; border-bottom: 2px solid var(--line); padding-bottom: 10px; }
-    .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid var(--line); font-family: var(--mono); }
-    .login-btn { width: 100%; padding: 12px; background: var(--ink); color: #fff; border: none; cursor: pointer; font-weight: 600; }
-    #app { display: none; padding: 20px; }
-    .header { margin-bottom: 30px; border-bottom: 1px solid var(--line); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end; }
-    .header h2 { font-family: var(--serif); font-size: 42px; }
-    .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--line); background: var(--paper2); margin-bottom: 20px; }
-    .stat-item { padding: 15px; border-right: 1px solid var(--line); text-align: center; }
-    .stat-item:last-child { border-right: none; }
-    .stat-num { font-size: 32px; font-family: var(--serif); font-weight: 700; display: block; }
-    .stat-label { font-size: 11px; font-family: var(--mono); text-transform: uppercase; color: var(--muted); }
-    .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-    .search-input { flex: 1; padding: 10px; border: 1px solid var(--line); background: var(--paper2); }
-    .filter-select { padding: 10px; border: 1px solid var(--line); background: var(--paper2); }
-    .table-container { background: var(--paper2); border: 1px solid var(--line); overflow-y: auto; max-height: 65vh; }
-    table { width: 100%; border-collapse: collapse; min-width: 800px; }
-    thead th { position: sticky; top: 0; background: var(--paper2); border-bottom: 3px double var(--line); padding: 12px; text-align: left; font-size: 12px; font-family: var(--mono); z-index: 10; }
-    tbody td { padding: 10px 12px; border-bottom: 1px solid var(--soft-line); font-size: 14px; }
-    .col-no { width: 60px; color: var(--muted); font-family: var(--mono); }
-    .col-fl { width: 80px; font-weight: 600; text-align: center; }
-    .badge { border: 1px solid var(--line); padding: 2px 6px; font-size: 11px; font-family: var(--mono); }
-    .status-btns { display: flex; gap: 5px; }
-    .s-btn { width: 32px; height: 32px; border: 1px solid var(--soft-line); background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .s-btn.ok.active { background: var(--ok); color: #fff; border-color: var(--ok); }
-    .s-btn.err.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .note-box { width: 100%; border: none; background: transparent; font-size: 13px; outline: none; }
-    @media print { .controls, .login-btn, #login-screen { display: none; } }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:var(--sans);background:var(--paper);color:var(--ink);}
+    #login-screen{position:fixed;inset:0;background:var(--paper);display:flex;align-items:center;justify-content:center;z-index:9999;}
+    .login-box{width:360px;background:var(--paper2);border:1px solid var(--line);padding:32px;box-shadow:10px 10px 0 rgba(0,0,0,0.1);}
+    .login-box h1{font-family:var(--serif);margin-bottom:6px;border-bottom:2px solid var(--line);padding-bottom:10px;font-size:28px;}
+    .login-box p{color:var(--muted);font-size:13px;margin-bottom:20px;}
+    .login-box input{width:100%;padding:12px;margin-bottom:14px;border:1px solid var(--line);font-family:var(--mono);background:var(--paper);}
+    .login-btn{width:100%;padding:12px;background:var(--ink);color:#fff;border:none;cursor:pointer;font-weight:600;font-size:14px;letter-spacing:1px;}
+    #app{display:none;padding:20px;}
+    .header{margin-bottom:24px;border-bottom:1px solid var(--line);padding-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px;}
+    .header h2{font-family:var(--serif);font-size:38px;line-height:1;}
+    .stats-bar{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:var(--paper2);margin-bottom:18px;}
+    .stat-item{padding:14px;border-right:1px solid var(--line);text-align:center;}
+    .stat-item:last-child{border-right:none;}
+    .stat-num{font-size:30px;font-family:var(--serif);font-weight:700;display:block;}
+    .stat-label{font-size:10px;font-family:var(--mono);text-transform:uppercase;color:var(--muted);}
+    .controls{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+    .search-input{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
+    .filter-select{padding:9px 10px;border:1px solid var(--line);background:var(--paper2);font-family:var(--sans);}
+    .ctrl-btn{padding:9px 14px;border:1px solid var(--line);background:var(--paper2);cursor:pointer;font-size:13px;white-space:nowrap;}
+    .ctrl-btn.export{background:var(--ink);color:#fff;border-color:var(--ink);}
+    .table-container{background:var(--paper2);border:1px solid var(--line);overflow-y:auto;max-height:63vh;overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;min-width:900px;}
+    thead th{position:sticky;top:0;background:var(--paper2);border-bottom:3px double var(--line);padding:10px 12px;text-align:left;font-size:11px;font-family:var(--mono);z-index:10;white-space:nowrap;}
+    tbody td{padding:8px 12px;border-bottom:1px solid var(--soft-line);font-size:13px;vertical-align:middle;}
+    .col-no{width:55px;color:var(--muted);font-family:var(--mono);font-size:12px;}
+    .col-fl{width:60px;text-align:center;}
+    .fl-badge{display:inline-block;font-weight:700;font-size:12px;font-family:var(--mono);background:var(--ink);color:#fff;padding:2px 6px;min-width:32px;text-align:center;}
+    .fl-empty{color:var(--muted);font-family:var(--mono);font-size:12px;}
+    .badge{border:1px solid var(--line);padding:2px 6px;font-size:10px;font-family:var(--mono);}
+    .status-btns{display:flex;gap:4px;}
+    .s-btn{width:30px;height:30px;border:1px solid var(--soft-line);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .s-btn.ok.active{background:var(--ok);color:#fff;border-color:var(--ok);}
+    .s-btn.err.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+    .editable-cell{width:100%;border:none;background:transparent;font-size:13px;outline:none;font-family:var(--sans);color:var(--ink);}
+    .editable-cell:focus{background:#fff;border-bottom:1px dashed var(--line);}
+    .qty-input{width:52px;border:1px solid var(--soft-line);background:var(--paper);padding:3px 6px;text-align:center;font-family:var(--mono);font-size:13px;}
+    .new-name-col{color:#1a5276;}
+    tbody tr:hover{background:#f0ebe0;}
+    .footer-note{text-align:right;font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--mono);}
+    .info-banner{background:#FFF9E6;border:1px solid #E8C84A;padding:8px 14px;font-size:12px;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+    @media(max-width:600px){.stats-bar{grid-template-columns:repeat(2,1fr);}.header h2{font-size:28px;}}
   </style>
 </head>
 <body>
+<div id="login-screen">
+  <div class="login-box">
+    <h1>Security Desk</h1>
+    <p>Dusit Thani — Key Control Inventory</p>
+    <input type="password" id="pw" placeholder="รหัสผ่าน" onkeydown="if(event.key==='Enter')login()">
+    <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
+  </div>
+</div>
 
-  <div id="login-screen">
-    <div class="login-box">
-      <h1>Security Desk</h1>
-      <input type="password" id="pw" placeholder="รหัสผ่าน">
-      <button class="login-btn" onclick="login()">เข้าสู่ระบบ</button>
+<div id="app">
+  <div class="header">
+    <div>
+      <h2>Daily Key Checklist</h2>
+      <p style="color:var(--muted);font-size:13px;margin-top:4px;">Security Control Inventory · 415 ดอก</p>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> Excel</button>
+      <button class="ctrl-btn export" style="background:#6a1a1a" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
+      <button class="ctrl-btn" onclick="location.reload()">ออกจากระบบ</button>
     </div>
   </div>
 
-  <div id="app">
-    <div class="header">
-      <div>
-        <h2>Daily Key Checklist</h2>
-        <p style="color:var(--muted)">Security Control Inventory (Full 415 Items)</p>
-      </div>
-      <button onclick="location.reload()" style="background:none; border:1px solid var(--line); padding:5px 10px; cursor:pointer;">ออกจากระบบ</button>
-    </div>
-
-    <div class="stats-bar">
-      <div class="stat-item"><span class="stat-num" id="t-total">0</span><span class="stat-label">ทั้งหมด</span></div>
-      <div class="stat-item"><span class="stat-num" id="t-ok" style="color:var(--ok)">0</span><span class="stat-label">ใช้ได้</span></div>
-      <div class="stat-item"><span class="stat-num" id="t-err" style="color:var(--accent)">0</span><span class="stat-label">ใช้ไม่ได้</span></div>
-      <div class="stat-item"><span class="stat-num" id="t-wait" style="color:#9A6A16">0</span><span class="stat-label">ยังไม่ตรวจ</span></div>
-    </div>
-
-    <div class="controls">
-      <input type="text" id="search" class="search-input" placeholder="ค้นหาชื่อกุญแจ / เลข / ชั้น..." oninput="render()">
-      <select id="f-cab" class="filter-select" onchange="render()">
-        <option value="">ทุกตู้</option>
-        <option value="1">ตู้ 1</option>
-        <option value="2">ตู้ 2</option>
-        <option value="3">ตู้ 3</option>
-      </select>
-      <button onclick="resetAll()" style="padding:10px; background:white; border:1px solid var(--line); cursor:pointer;">รีเซ็ตข้อมูลใหม่</button>
-    </div>
-
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th class="col-no">NO.</th>
-            <th class="col-fl">ชั้น</th>
-            <th>ชื่อกุญแจ</th>
-            <th style="width:80px; text-align:center;">จำนวน</th>
-            <th style="width:100px; text-align:center;">ตู้</th>
-            <th style="width:120px">สถานะ</th>
-            <th style="width:200px">หมายเหตุ</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
+  <div class="info-banner">
+    <i class="ti ti-info-circle"></i>
+    <span>กุญแจ No.181–241 ไม่มีข้อมูลชั้นในไฟล์ต้นฉบับ · กุญแจ No.300–354 ชั้นดึงมาจากแถวคู่ในตาราง Excel</span>
   </div>
 
-  <script>
-    const KEY_DB = 'dusit_key_415_v1';
-    let keys = [];
+  <div class="stats-bar">
+    <div class="stat-item"><span class="stat-num" id="t-total">0</span><span class="stat-label">ทั้งหมด</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-ok" style="color:var(--ok)">0</span><span class="stat-label">ใช้ได้</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-err" style="color:var(--accent)">0</span><span class="stat-label">ใช้ไม่ได้</span></div>
+    <div class="stat-item"><span class="stat-num" id="t-wait" style="color:#9A6A16">0</span><span class="stat-label">ยังไม่ตรวจ</span></div>
+  </div>
 
-    function loadRawData() {
-      // ข้อมูลดิบที่สกัดจาก All Key List.xlsx
-      const rawData = {
-        // Cabinet 1 (Engineering / LG)
-        1: {fl:"LG", name:"Purshasing office", cab:1},
-        2: {fl:"LG", name:"Purshasing office", cab:1},
-        3: {fl:"LG", name:"Control Room LG", cab:1},
-        4: {fl:"LG", name:"HK Office", cab:1},
-        5: {fl:"LG", name:"Engineering Office", cab:1},
-        6: {fl:"LG", name:"Flower PREP", cab:1},
-        7: {fl:"LG", name:"Dry Store", cab:1},
-        8: {fl:"LG", name:"Crockery Store", cab:1},
-        9: {fl:"LG", name:"General Store", cab:1},
-        41: {fl:"LG", name:"Service Corridor (hF)", cab:1},
-        42: {fl:"LG", name:"Service Corridor ริมอาคาร", cab:1},
-        43: {fl:"LG", name:"Service Corridor and loading", cab:1},
-        
-        // Cabinet 3 (Office / IT / 6th Floor)
-        70: {fl:"6", name:"Server Room", cab:3},
-        71: {fl:"6", name:"Office 3", cab:3},
-        72: {fl:"6", name:"ห้อง IT", cab:3},
-        73: {fl:"6", name:"Training", cab:3},
-        74: {fl:"6", name:"Printer/Scanner Machine", cab:3},
-        75: {fl:"6", name:"Service Corridor 3", cab:3},
-        76: {fl:"6", name:"ห้อง Store/fire rated 2hr.", cab:3},
-        77: {fl:"6", name:"Private ห้องซ้าย", cab:3},
-        78: {fl:"6", name:"Private ห้องขวา", cab:3},
-        79: {fl:"6", name:"ห้อง Manager Room", cab:3},
-        80: {fl:"6", name:"Staff WC", cab:3},
-        81: {fl:"6", name:"Storage cleaning Equipment", cab:3},
-        82: {fl:"6", name:"Shelves For Linen", cab:3},
-        
-        // Cabinet 2 (Retail / Lobby)
-        121: {fl:"L5", name:"Service Corridor (Retail)", cab:2},
-        122: {fl:"LG", name:"St01", cab:2},
-        123: {fl:"LG", name:"St02", cab:2},
-        124: {fl:"LG", name:"Fireman Lift Lobby", cab:2},
-        125: {fl:"LG", name:"ห้อง Guest Lift Lobby", cab:2},
-        126: {fl:"B3", name:"Fireman Lift Lobby", cab:2},
-        127: {fl:"B3", name:"ห้อง ST1", cab:2},
-        128: {fl:"B3", name:"ห้อง ST2", cab:2}
-      };
+  <div class="controls">
+    <input type="text" id="search" class="search-input" placeholder="ค้นหาชื่อ / เลข / ชั้น..." oninput="render()">
+    <select id="f-cab" class="filter-select" onchange="render()">
+      <option value="">ทุกตู้</option>
+      <option value="1">ตู้ 1</option>
+      <option value="2">ตู้ 2</option>
+      <option value="3">ตู้ 3</option>
+    </select>
+    <select id="f-status" class="filter-select" onchange="render()">
+      <option value="">ทุกสถานะ</option>
+      <option value="0">ยังไม่ตรวจ</option>
+      <option value="1">ใช้ได้</option>
+      <option value="2">ใช้ไม่ได้</option>
+    </select>
+    <button class="ctrl-btn" onclick="resetAll()"><i class="ti ti-refresh"></i> รีเซ็ต</button>
+  </div>
 
-      const fullList = [];
-      for(let i=1; i<=415; i++) {
-        if(rawData[i]) {
-          fullList.push({
-            no: i,
-            fl: rawData[i].fl,
-            name: rawData[i].name,
-            qty: 1,
-            cab: rawData[i].cab,
-            status: 0,
-            note: ""
-          });
-        } else {
-          // เติมข้อมูลอัตโนมัติสำหรับกุญแจที่ไม่มีชื่อระบุเจาะจง
-          let defaultCab = 1;
-          if(i > 140 && i <= 280) defaultCab = 2;
-          else if(i > 280) defaultCab = 3;
-          // พิเศษ: ช่วง 70-100 มักเป็นตู้ 3
-          if(i >= 70 && i <= 100) defaultCab = 3;
-
-          fullList.push({
-            no: i,
-            fl: "-",
-            name: "Key Tag No. " + i,
-            qty: 1,
-            cab: defaultCab,
-            status: 0,
-            note: ""
-          });
-        }
-      }
-      return fullList;
-    }
-
-    function login() {
-      if(document.getElementById('pw').value === 'admin') {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app').style.display = 'block';
-        init();
-      } else { alert('รหัสผ่านไม่ถูกต้อง'); }
-    }
-
-    function init() {
-      const saved = localStorage.getItem(KEY_DB);
-      keys = saved ? JSON.parse(saved) : loadRawData();
-      render();
-    }
-
-    function render() {
-      const q = document.getElementById('search').value.toLowerCase();
-      const cab = document.getElementById('f-cab').value;
-      const tbody = document.getElementById('tbody');
-      
-      const filtered = keys.filter(k => {
-        const matchSearch = k.name.toLowerCase().includes(q) || k.fl.toLowerCase().includes(q) || k.no.toString().includes(q);
-        const matchCab = cab === "" || k.cab == cab;
-        return matchSearch && matchCab;
-      });
-
-      tbody.innerHTML = filtered.map(k => `
+  <div class="table-container">
+    <table>
+      <thead>
         <tr>
-          <td class="col-no">${k.no}</td>
-          <td class="col-fl">${k.fl}</td>
-          <td><strong>${k.name}</strong></td>
-          <td style="text-align:center;">${k.qty}</td>
-          <td style="text-align:center;"><span class="badge">ตู้ ${k.cab}</span></td>
-          <td>
-            <div class="status-btns">
-              <button class="s-btn ok ${k.status===1?'active':''}" onclick="setStatus(${k.no}, 1)"><i class="ti ti-check"></i></button>
-              <button class="s-btn err ${k.status===2?'active':''}" onclick="setStatus(${k.no}, 2)"><i class="ti ti-x"></i></button>
-            </div>
-          </td>
-          <td><input type="text" class="note-box" placeholder="-" value="${k.note}" onchange="setNote(${k.no}, this.value)"></td>
+          <th class="col-no">NO.</th>
+          <th class="col-fl">ชั้น</th>
+          <th style="min-width:160px">ชื่อเดิม</th>
+          <th style="min-width:160px">ชื่อใหม่ (แก้ไขได้)</th>
+          <th style="width:70px;text-align:center;">จำนวน</th>
+          <th style="width:85px;text-align:center;">ตู้</th>
+          <th style="width:100px">สถานะ</th>
+          <th style="min-width:180px">หมายเหตุ</th>
         </tr>
-      `).join('');
-      updateStats();
-    }
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <p class="footer-note" id="footer-note"></p>
+</div>
 
-    function setStatus(no, s) {
-      const idx = keys.findIndex(x => x.no === no);
-      keys[idx].status = keys[idx].status === s ? 0 : s;
-      save(); render();
-    }
+<script>
+const KEY_DB = 'dusit_key_415_v4';
+let keys = [];
 
-    function setNote(no, txt) {
-      const idx = keys.findIndex(x => x.no === no);
-      keys[idx].note = txt;
-      save();
-    }
+const RAW = {
+  1: {fl:"LG",name:"Purshasing office",cab:1},
+  2: {fl:"LG",name:"Purshasing office",cab:1},
+  3: {fl:"LG",name:"Control Room LG",cab:1},
+  4: {fl:"LG",name:"HK Office",cab:1},
+  5: {fl:"LG",name:"Engineering",cab:1},
+  6: {fl:"LG",name:"Flower PREP",cab:1},
+  7: {fl:"LG",name:"Dry Store",cab:1},
+  8: {fl:"LG",name:"Crockery Store",cab:1},
+  9: {fl:"LG",name:"General Store",cab:1},
+  10: {fl:"LG",name:"HK Store",cab:1},
+  11: {fl:"LG",name:"Steward Store",cab:1},
+  12: {fl:"LG",name:"Chemical Storage & Coridoor",cab:1},
+  13: {fl:"LG",name:"Connect Chemical Storage",cab:1},
+  14: {fl:"LG",name:"Storage Room",cab:1},
+  15: {fl:"LG",name:"Bakery Store (บานคู่)",cab:1},
+  16: {fl:"LG",name:"Bakery Store (บานเดี๋ยว)",cab:1},
+  17: {fl:"LG",name:"Connecting door HK office",cab:1},
+  18: {fl:"LG",name:"Dishwash 1",cab:1},
+  19: {fl:"LG",name:"Dishwash Area",cab:1},
+  20: {fl:"LG",name:"Diswash1",cab:1},
+  21: {fl:"LG",name:"Cold Kitchen",cab:1},
+  22: {fl:"LG",name:"Main Kitchen",cab:1},
+  23: {fl:"LG",name:"Main Kitchen",cab:1},
+  24: {fl:"LG",name:"Kitchen Room",cab:1},
+  25: {fl:"LG",name:"Staff Canteen ประตูหน้า",cab:1},
+  26: {fl:"LG",name:"Staff Canteen  (Recreation)",cab:1},
+  27: {fl:"LG",name:"CDU For cold Room",cab:1},
+  28: {fl:"LG",name:"Cheff's  Office",cab:1},
+  29: {fl:"LG",name:"Recycable Area",cab:1},
+  30: {fl:"LG",name:"Sorting Area",cab:1},
+  31: {fl:"LG",name:"Waste Dock",cab:1},
+  32: {fl:"LG",name:"Uniform Issue",cab:1},
+  33: {fl:"LG",name:"Line sorting",cab:1},
+  34: {fl:"LG",name:"RFID Linen Source",cab:1},
+  35: {fl:"LG",name:"Receiving office",cab:1},
+  36: {fl:"LG",name:"Loading",cab:1},
+  37: {fl:"LG",name:"ICT Smart Room",cab:1},
+  38: {fl:"LG",name:"EE",cab:1},
+  39: {fl:"LG",name:"EE Room",cab:1},
+  40: {fl:"LG",name:"Service Corridor",cab:1},
+  41: {fl:"LG",name:"Service Corridor (hF)",cab:1},
+  42: {fl:"LG",name:"Service Corridor ริมอาคาร",cab:1},
+  43: {fl:"LG",name:"Service Corridor and loading",cab:1},
+  44: {fl:"LG",name:"Service Corridor",cab:1},
+  45: {fl:"LG",name:"Ice Carving",cab:1},
+  46: {fl:"LG",name:"ริมนอกอาคาร",cab:1},
+  47: {fl:"LG",name:"Clinic บานคู่",cab:1},
+  48: {fl:"LG",name:"Clinic บานเดี่ยว",cab:1},
+  49: {fl:"LG",name:"Interview Room",cab:1},
+  50: {fl:"LG",name:"Corridor ในล็อคเกอร์หญิง",cab:1},
+  51: {fl:"LG",name:"Service Corridor",cab:1},
+  52: {fl:"LG",name:"Beverage Store",cab:1},
+  53: {fl:"6",name:"Kids Club",cab:1},
+  54: {fl:"G",name:"Driver Room",cab:1},
+  55: {fl:"1",name:"Canubi",cab:1},
+  56: {fl:"G",name:"Guard House บานนอก",cab:1},
+  57: {fl:"G",name:"ประตูใต้ Ramp G",cab:1},
+  58: {fl:"G",name:"Guard House บานใน",cab:1},
+  59: {fl:"5",name:"Poor Bar 5 floor",cab:1},
+  60: {fl:"5",name:"Fitness",cab:1},
+  61: {fl:"6",name:"ST01",cab:1},
+  62: {fl:"LG",name:"ST01 (BOH)",cab:1},
+  63: {fl:"M",name:"Storage",cab:1},
+  64: {fl:"6",name:"ห้อง CHP & CDP",cab:1},
+  65: {fl:"6",name:"Toilet/Foyer",cab:1},
+  66: {fl:"6",name:"Female's WC",cab:1},
+  67: {fl:"6",name:"Male's WC",cab:1},
+  68: {fl:"6",name:"ICT Smart Room",cab:1},
+  69: {fl:"6",name:"ST02",cab:1},
+  70: {fl:"6",name:"Server Room",cab:1},
+  71: {fl:"6",name:"Office 3",cab:1},
+  72: {fl:"6",name:"ห้อง IT",cab:1},
+  73: {fl:"6",name:"Training",cab:1},
+  74: {fl:"6",name:"Printer/Scanner Machine",cab:1},
+  75: {fl:"6",name:"Service Corridor 3",cab:1},
+  76: {fl:"6",name:"ห้อง Store/fire rated 2hr.",cab:1},
+  77: {fl:"6",name:"Private ห้องซ้าย",cab:1},
+  78: {fl:"6",name:"Private ห้องขวา",cab:1},
+  79: {fl:"6",name:"ห้อง Manager Room",cab:1},
+  80: {fl:"6",name:"Staff WC",cab:1},
+  81: {fl:"6",name:"Storage cleaning Equipment",cab:1},
+  82: {fl:"6",name:"Shelves For Linen",cab:1},
+  83: {fl:"6",name:"ห้อง AHU For Spa",cab:1},
+  84: {fl:"3",name:"Storage & Meeting Room",cab:1},
+  85: {fl:"6",name:"PANTRY+STAFF CANTEEN",cab:1},
+  86: {fl:"6",name:"MEETING",cab:1},
+  87: {fl:"6",name:"Office 1",cab:1},
+  88: {fl:"6",name:"Office 1",cab:1},
+  89: {fl:"6",name:"Office 1",cab:1},
+  90: {fl:"3",name:"Storage (2)",cab:1},
+  91: {fl:"3",name:"Service Corridor",cab:1},
+  92: {fl:"3",name:"BOH of Storage",cab:1},
+  93: {fl:"6",name:"ประตู Task ชุดที่ 3",cab:1},
+  94: {fl:"6",name:"ประตู Task ชุดที่ 4",cab:1},
+  95: {fl:"6",name:"ประตู Task ชุดที่ 2",cab:1},
+  96: {fl:"6",name:"ประตู Task ชุดที่ 1",cab:1},
+  97: {fl:"3",name:"Service Corridor ติด Retail",cab:1},
+  98: {fl:"3",name:"Outdoor Storage (1)",cab:1},
+  99: {fl:"3",name:"Service Corridor (h6)",cab:1},
+  100: {fl:"3",name:"Outdoor Storage",cab:1},
+  101: {fl:"3",name:"Fireman lift Lobby",cab:1},
+  102: {fl:"3",name:"GL.h8",cab:1},
+  103: {fl:"M",name:"Service Corridor",cab:1},
+  104: {fl:"L",name:"Front Office (บานใน)",cab:1},
+  105: {fl:"L",name:"Front Office",cab:1},
+  106: {fl:"M",name:"Function Lift Lobby",cab:1},
+  107: {fl:"1",name:"Maid Station",cab:1},
+  108: {fl:"M",name:"AHU For Lobby",cab:1},
+  109: {fl:"1",name:"BQ Kitchen & Service Corridor",cab:1},
+  110: {fl:"1",name:"BQ Kitchen",cab:1},
+  111: {fl:"1",name:"Function Lift",cab:1},
+  112: {fl:"1",name:"Service Corridor and Pantry",cab:1},
+  113: {fl:"1",name:"Corridor Retail (2) ติดห้องน้ำ",cab:1},
+  114: {fl:"1",name:"Corridor Retail (1) ติดห้องครัว",cab:1},
+  115: {fl:"2",name:"Storage and Service Corridor",cab:1},
+  116: {fl:"2",name:"Service Corridor ติด Retail",cab:1},
+  117: {fl:"2",name:"Function Lift Lobby + Corridor",cab:1},
+  118: {fl:"2",name:"Kitchen and Service Corridor",cab:1},
+  119: {fl:"42",name:"Lower Sky Deck",cab:1},
+  120: {fl:"42",name:"Lower Sky Deck",cab:1},
+  121: {fl:"L5",name:"Service Corridor (Retail)",cab:1},
+  122: {fl:"LG",name:"St01",cab:1},
+  123: {fl:"LG",name:"St02",cab:1},
+  124: {fl:"LG",name:"Fireman Lift Lobby",cab:1},
+  125: {fl:"LG",name:"ห้อง Guest Lift Lobby",cab:1},
+  126: {fl:"B3",name:"Fireman Lift Lobby",cab:1},
+  127: {fl:"B3",name:"ห้อง ST1",cab:1},
+  128: {fl:"B3",name:"ห้อง ST2",cab:1},
+  129: {fl:"B3",name:"ห้อง R-S (hE) บานใน",cab:1},
+  130: {fl:"B3",name:"R-SD01 (hB) บาน 3",cab:1},
+  131: {fl:"B2",name:"Fireman Lift Lobby",cab:1},
+  132: {fl:"B2",name:"ห้อง ST1",cab:1},
+  133: {fl:"B2",name:"ห้อง ST2",cab:1},
+  134: {fl:"B2",name:"ห้อง R-S (hA) บาน 2",cab:1},
+  135: {fl:"B2",name:"ห้อง R-S (hB) บาน 3",cab:1},
+  136: {fl:"B2",name:"ห้อง R-S (hE) บาน 1",cab:1},
+  137: {fl:"-",name:"Personal Lift",cab:1},
+  138: {fl:"B1",name:"Fireman Lift Lobby",cab:1},
+  139: {fl:"B1",name:"ห้อง R-SD01 (HA)",cab:1},
+  140: {fl:"B1",name:"ห้อง R-SD01 (HB)",cab:1},
+  141: {fl:"B1",name:"ห้อง R-SD01 (HE)",cab:1},
+  142: {fl:"B1",name:"ห้อง ST1",cab:1},
+  143: {fl:"B1",name:"ห้อง ST2",cab:1},
+  144: {fl:"G",name:"Fireman Lift Lobby",cab:1},
+  145: {fl:"G",name:"FORYER 1",cab:1},
+  146: {fl:"G",name:"FORYER 2",cab:1},
+  147: {fl:"G",name:"ST1 บานใน",cab:1},
+  148: {fl:"G",name:"ST1 บานนอก",cab:1},
+  149: {fl:"G",name:"VIP Entry",cab:1},
+  150: {fl:"G",name:"VIP Entry & corridor",cab:1},
+  151: {fl:"G",name:"Service corridor",cab:1},
+  152: {fl:"G",name:"ห้อง H1B",cab:1},
+  153: {fl:"G",name:"H-FST02",cab:1},
+  154: {fl:"G",name:"Master Key (MK1)",cab:1},
+  155: {fl:"G",name:"Master Key (MK2)",cab:1},
+  156: {fl:"G",name:"Fire Command",cab:1},
+  157: {fl:"L",name:"Fireman Lift Lobby",cab:1},
+  158: {fl:"L",name:"ห้อง ST1",cab:1},
+  159: {fl:"L",name:"ห้อง ST2",cab:1},
+  160: {fl:"L",name:"Service corridor ติด Retail",cab:1},
+  161: {fl:"L",name:"Service Corridor (D04)",cab:2},
+  162: {fl:"L",name:"Service Corridor (D05)",cab:2},
+  163: {fl:"L",name:"ห้องหลัง ST1 Service corridor",cab:2},
+  164: {fl:"L",name:"BOH Kitchen",cab:2},
+  165: {fl:"L",name:"Luggage Room",cab:2},
+  166: {fl:"M",name:"Fireman Lift Lobby",cab:2},
+  167: {fl:"G",name:"FL.G Exit Gourmet 1 (MK1)",cab:2},
+  168: {fl:"M",name:"ห้อง ST1",cab:2},
+  169: {fl:"M",name:"ห้อง ST2",cab:2},
+  170: {fl:"G",name:"FL.G Exit Gourmet 2 (MK1)",cab:2},
+  171: {fl:"G",name:"FL.G D1/2 (MK1)",cab:2},
+  172: {fl:"1",name:"Fireman Lift Lobby & Corridor",cab:2},
+  173: {fl:"1",name:"Fireman Lift Lobby & Corridor",cab:2},
+  174: {fl:"1",name:"Function Lift Lobby",cab:2},
+  175: {fl:"1",name:"ห้อง ST01 (BOH)",cab:2},
+  176: {fl:"1",name:"ห้อง ST1",cab:2},
+  177: {fl:"1",name:"ห้อง ST2",cab:2},
+  178: {fl:"1",name:"Grand ballroom",cab:2},
+  179: {fl:"1",name:"Floor Pantry (D06)",cab:2},
+  180: {fl:"1",name:"Floor Pantry (D05)",cab:2},
+  181: {fl:"-",name:"ห้อง Store",cab:2},
+  182: {fl:"-",name:"Fireman Lift Lobby",cab:2},
+  183: {fl:"-",name:"Fireman Lift Lobby (D05.1)",cab:2},
+  184: {fl:"-",name:"Fireman Lift Lobby (D04)",cab:2},
+  185: {fl:"-",name:"Kitchen",cab:2},
+  186: {fl:"-",name:"FL.G D1/1 (MK1)",cab:2},
+  187: {fl:"-",name:"Store (D05)",cab:2},
+  188: {fl:"-",name:"Store (D05.1)",cab:2},
+  189: {fl:"-",name:"FL.M D08/1 (MK2)",cab:2},
+  190: {fl:"-",name:"Pre-Function",cab:2},
+  191: {fl:"-",name:"Floor Pantry",cab:2},
+  192: {fl:"-",name:"FL.M D05 (MK2)",cab:2},
+  193: {fl:"-",name:"ST01 (BOH)",cab:2},
+  194: {fl:"-",name:"ST01",cab:2},
+  195: {fl:"-",name:"ST02",cab:2},
+  196: {fl:"-",name:"Fireman Lift Lobby & Prefunction",cab:2},
+  197: {fl:"-",name:"Floor Pantry (H5)",cab:2},
+  198: {fl:"-",name:"Floor Pantry (D06)",cab:2},
+  199: {fl:"-",name:"Pump Room",cab:2},
+  200: {fl:"-",name:"H-FST01",cab:2},
+  201: {fl:"-",name:"ST1(BOH)",cab:2},
+  202: {fl:"-",name:"ST2",cab:2},
+  203: {fl:"-",name:"Fireman Lift Lobby",cab:2},
+  204: {fl:"-",name:"ห้อง ST1",cab:2},
+  205: {fl:"-",name:"ห้อง ST2",cab:2},
+  206: {fl:"-",name:"ห้อง SPA",cab:2},
+  207: {fl:"-",name:"ห้อง Grand Room",cab:2},
+  208: {fl:"-",name:"ประตู D01",cab:2},
+  209: {fl:"-",name:"Master Key SPA (New)",cab:2},
+  210: {fl:"-",name:"Fl.5 ทางเข้าสปา (ขวา)",cab:2},
+  211: {fl:"-",name:"Fl.5 ทางเข้าสปา (ซ้าย)",cab:2},
+  212: {fl:"-",name:"ห้องเก็บของสปา",cab:2},
+  213: {fl:"-",name:"Fireman Lift Lobby",cab:2},
+  214: {fl:"-",name:"Maid Station",cab:2},
+  215: {fl:"-",name:"Maid Toilet",cab:2},
+  216: {fl:"-",name:"ST01 (BOH)",cab:2},
+  217: {fl:"-",name:"ST01",cab:2},
+  218: {fl:"-",name:"ST02",cab:2},
+  219: {fl:"-",name:"Fireman Lift Lobby",cab:2},
+  220: {fl:"-",name:"Maid Station",cab:2},
+  221: {fl:"-",name:"EE Room",cab:2},
+  222: {fl:"-",name:"ST01 (BOH)",cab:2},
+  223: {fl:"-",name:"ST01",cab:2},
+  224: {fl:"-",name:"ST02",cab:2},
+  225: {fl:"-",name:"Fireman Lift Lobby",cab:2},
+  226: {fl:"-",name:"EE Room",cab:2},
+  227: {fl:"-",name:"ST01 (BOH)",cab:2},
+  228: {fl:"-",name:"ST01",cab:2},
+  229: {fl:"-",name:"ST02",cab:2},
+  230: {fl:"-",name:"Fireman Lift Lobby",cab:2},
+  231: {fl:"-",name:"Maid Station",cab:2},
+  232: {fl:"-",name:"EE Room",cab:2},
+  233: {fl:"-",name:"ST01 (BOH)",cab:2},
+  234: {fl:"-",name:"ST01",cab:2},
+  235: {fl:"-",name:"ST02",cab:2},
+  236: {fl:"-",name:"Fireman Lift Lobby",cab:2},
+  237: {fl:"-",name:"Maid Station",cab:2},
+  238: {fl:"-",name:"EE Room",cab:2},
+  239: {fl:"-",name:"ST01 (BOH)",cab:2},
+  240: {fl:"-",name:"ST01",cab:2},
+  241: {fl:"-",name:"ST02",cab:2},
+  242: {fl:"14",name:"Fireman Lift Lobby",cab:2},
+  243: {fl:"14",name:"Maid Station",cab:2},
+  244: {fl:"14",name:"EE Room",cab:2},
+  245: {fl:"14",name:"ST01 (BOH)",cab:2},
+  246: {fl:"14",name:"ST01",cab:2},
+  247: {fl:"14",name:"ST02",cab:2},
+  248: {fl:"15",name:"Fireman Lift Lobby",cab:2},
+  249: {fl:"15",name:"Maid Station",cab:2},
+  250: {fl:"15",name:"EE Room",cab:2},
+  251: {fl:"15",name:"ST01 (BOH)",cab:2},
+  252: {fl:"15",name:"ST01",cab:2},
+  253: {fl:"15",name:"ST02",cab:2},
+  254: {fl:"16",name:"Fireman Lift Lobby",cab:2},
+  255: {fl:"16",name:"EE Room",cab:2},
+  256: {fl:"16",name:"ST01 (BOH)",cab:2},
+  257: {fl:"16",name:"ST01",cab:2},
+  258: {fl:"16",name:"ST02",cab:2},
+  259: {fl:"17",name:"Fireman Lift Lobby",cab:2},
+  260: {fl:"17",name:"Maid Station",cab:2},
+  261: {fl:"17",name:"EE Room",cab:2},
+  262: {fl:"17",name:"ST01 (BOH)",cab:2},
+  263: {fl:"17",name:"ST01",cab:2},
+  264: {fl:"17",name:"ST02",cab:2},
+  265: {fl:"18",name:"Fireman Lift Lobby",cab:2},
+  266: {fl:"18",name:"Maid Station",cab:2},
+  267: {fl:"18",name:"Maid Toilet",cab:2},
+  268: {fl:"18",name:"EE Room",cab:2},
+  269: {fl:"18",name:"ST01 (BOH)",cab:2},
+  270: {fl:"18",name:"ST01",cab:2},
+  271: {fl:"18",name:"ST02",cab:2},
+  272: {fl:"19",name:"Fireman Lift Lobby",cab:2},
+  273: {fl:"1",name:"EE Room",cab:2},
+  274: {fl:"1",name:"ST01 (BOH)",cab:2},
+  275: {fl:"2",name:"ST01",cab:2},
+  276: {fl:"2",name:"ST02",cab:2},
+  277: {fl:"2",name:"Fireman Lift Lobby",cab:2},
+  278: {fl:"2",name:"EE Room",cab:2},
+  279: {fl:"42",name:"ST01 (BOH)",cab:2},
+  280: {fl:"42",name:"ST01",cab:2},
+  281: {fl:"L5",name:"ST02",cab:2},
+  282: {fl:"LG",name:"Fireman Lift Lobby",cab:2},
+  283: {fl:"LG",name:"Maid Toilet",cab:2},
+  284: {fl:"LG",name:"ST01 (BOH)",cab:2},
+  285: {fl:"LG",name:"ST01",cab:2},
+  286: {fl:"B3",name:"ST02",cab:2},
+  287: {fl:"B3",name:"EE Room",cab:2},
+  288: {fl:"B3",name:"Fireman Lift Lobby",cab:2},
+  289: {fl:"B3",name:"Maid Station",cab:2},
+  290: {fl:"B3",name:"EE Room",cab:2},
+  291: {fl:"B2",name:"ST01 (BOH)",cab:2},
+  292: {fl:"B2",name:"ST01",cab:2},
+  293: {fl:"B2",name:"ST02",cab:2},
+  294: {fl:"B2",name:"Fireman Lift Lobby",cab:2},
+  295: {fl:"B2",name:"Maid Station",cab:2},
+  296: {fl:"B2",name:"EE Room",cab:2},
+  297: {fl:"B2",name:"ST01 (BOH)",cab:2},
+  298: {fl:"B1",name:"ST01",cab:2},
+  299: {fl:"B1",name:"ST02",cab:2},
+  300: {fl:"14",name:"Fireman Lift Lobby",cab:2},
+  301: {fl:"14",name:"Maid Station",cab:2},
+  302: {fl:"14",name:"Maid Toilet",cab:2},
+  303: {fl:"14",name:"ST01 (BOH)",cab:2},
+  304: {fl:"14",name:"ST01",cab:2},
+  305: {fl:"14",name:"ST02",cab:2},
+  306: {fl:"15",name:"Fireman Lift Lobby",cab:2},
+  307: {fl:"15",name:"ST01 (BOH)",cab:2},
+  308: {fl:"15",name:"ST01",cab:2},
+  309: {fl:"15",name:"ST02",cab:2},
+  310: {fl:"15",name:"Fireman Lift Lobby",cab:2},
+  311: {fl:"15",name:"ST01 (BOH)",cab:2},
+  312: {fl:"16",name:"ST01",cab:2},
+  313: {fl:"16",name:"ST02",cab:2},
+  314: {fl:"16",name:"Fireman Lift Lobby",cab:2},
+  315: {fl:"16",name:"Maid Station",cab:2},
+  316: {fl:"16",name:"Maid Toilet",cab:2},
+  317: {fl:"17",name:"ST01 (BOH)",cab:2},
+  318: {fl:"17",name:"ST01",cab:2},
+  319: {fl:"17",name:"ST02",cab:2},
+  320: {fl:"17",name:"Fireman Lift Lobby",cab:2},
+  321: {fl:"18",name:"Maid Station",cab:2},
+  322: {fl:"18",name:"ST01 (BOH)",cab:2},
+  323: {fl:"18",name:"ST01",cab:2},
+  324: {fl:"18",name:"ST02",cab:2},
+  325: {fl:"18",name:"Fireman Lift Lobby",cab:2},
+  326: {fl:"18",name:"ห้องข้าง Fireman",cab:2},
+  327: {fl:"18",name:"ST01 (BOH)",cab:2},
+  328: {fl:"19",name:"ST1 บานนอก",cab:2},
+  329: {fl:"1",name:"ST1 บานใน",cab:2},
+  330: {fl:"1",name:"ST2 บานนอก",cab:2},
+  331: {fl:"2",name:"ST2 บานใน",cab:2},
+  332: {fl:"2",name:"Fireman Lift Lobby",cab:2},
+  333: {fl:"2",name:"Maid Station",cab:2},
+  334: {fl:"2",name:"Maid Toilet",cab:2},
+  335: {fl:"42",name:"ST01 (BOH)",cab:2},
+  336: {fl:"42",name:"ST01",cab:2},
+  337: {fl:"L5",name:"ST02",cab:2},
+  338: {fl:"LG",name:"Fireman Lift Lobby",cab:2},
+  339: {fl:"LG",name:"Maid Station",cab:2},
+  340: {fl:"LG",name:"ST01 (BOH)",cab:2},
+  341: {fl:"LG",name:"ST01",cab:2},
+  342: {fl:"B3",name:"ST02",cab:2},
+  343: {fl:"B3",name:"Fireman Lift Lobby",cab:2},
+  344: {fl:"B3",name:"Maid Station",cab:2},
+  345: {fl:"B3",name:"ST01 (BOH)",cab:2},
+  346: {fl:"B3",name:"ST01",cab:2},
+  347: {fl:"B2",name:"ST02",cab:2},
+  348: {fl:"B2",name:"Fireman Lift Lobby",cab:2},
+  349: {fl:"B2",name:"ห้องข้าง Fireman",cab:2},
+  350: {fl:"B2",name:"Maid Toilet",cab:2},
+  351: {fl:"B2",name:"ST01 (BOH)",cab:2},
+  352: {fl:"B2",name:"ST01",cab:2},
+  353: {fl:"B2",name:"ST02",cab:2},
+  354: {fl:"B1",name:"Fireman Lift Lobby",cab:2},
+  355: {fl:"33",name:"Maid Station",cab:3},
+  356: {fl:"33",name:"ST01 (BOH)",cab:3},
+  357: {fl:"33",name:"ST01",cab:3},
+  358: {fl:"33",name:"ST02",cab:3},
+  359: {fl:"34",name:"Fireman Lift Lobby",cab:3},
+  360: {fl:"34",name:"Maid Station",cab:3},
+  361: {fl:"34",name:"ST01 (BOH)",cab:3},
+  362: {fl:"34",name:"ST01",cab:3},
+  363: {fl:"34",name:"ST02",cab:3},
+  364: {fl:"35",name:"Fireman Lift Lobby",cab:3},
+  365: {fl:"35",name:"ห้องข้าง Fireman",cab:3},
+  366: {fl:"35",name:"Maid Station",cab:3},
+  367: {fl:"35",name:"ST01 (BOH)",cab:3},
+  368: {fl:"35",name:"ST01",cab:3},
+  369: {fl:"35",name:"ST02",cab:3},
+  370: {fl:"36",name:"Fireman Lift Lobby",cab:3},
+  371: {fl:"36",name:"Maid Station",cab:3},
+  372: {fl:"36",name:"ST01 (BOH)",cab:3},
+  373: {fl:"36",name:"ST01",cab:3},
+  374: {fl:"36",name:"ST02",cab:3},
+  375: {fl:"37",name:"Fireman Lift Lobby",cab:3},
+  376: {fl:"37",name:"Maid Station",cab:3},
+  377: {fl:"37",name:"ST01 (BOH)",cab:3},
+  378: {fl:"37",name:"ST01",cab:3},
+  379: {fl:"37",name:"ST02",cab:3},
+  380: {fl:"38",name:"Fireman Lift Lobby",cab:3},
+  381: {fl:"38",name:"Maid Station",cab:3},
+  382: {fl:"38",name:"ST01 (BOH)",cab:3},
+  383: {fl:"38",name:"ST01",cab:3},
+  384: {fl:"38",name:"ST02",cab:3},
+  385: {fl:"39",name:"Fireman Lift Lobby",cab:3},
+  386: {fl:"39",name:"ST01 (BOH)",cab:3},
+  387: {fl:"39",name:"ST01",cab:3},
+  388: {fl:"39",name:"ST02",cab:3},
+  389: {fl:"39M",name:"Fireman Lift Lobby",cab:3},
+  390: {fl:"39M",name:"Floor Pantry หน้าลิฟต์",cab:3},
+  391: {fl:"39M",name:"ST01 (BOH)",cab:3},
+  392: {fl:"39M",name:"ST01",cab:3},
+  393: {fl:"39M",name:"ST02",cab:3},
+  394: {fl:"40",name:"ST01",cab:3},
+  395: {fl:"42",name:"ST01",cab:3},
+  396: {fl:"42",name:"ST02",cab:3},
+  397: {fl:"6",name:"Fireman Lift Lobby",cab:3},
+  398: {fl:"42",name:"ห้องลิฟต์",cab:3},
+  399: {fl:"G",name:"FL.L D01 (MK2) Forest Bar",cab:3},
+  400: {fl:"3",name:"ทางเชื่อมชั้น 3 ไปสวน",cab:3},
+  401: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  402: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  403: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  404: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  405: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  406: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  407: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  408: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  409: {fl:"3",name:"Shutter Door On 3Floor",cab:3},
+  410: {fl:"3",name:"Shutter Door On 3Floor",cab:3},
+  411: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  412: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  413: {fl:"G",name:"Remote Roller Shutter Door",cab:3},
+  414: {fl:"G",name:"FL.G D01B (MK1)",cab:3},
+  415: {fl:"G",name:"FL.G D08/2 (MK2)",cab:3}
+};
 
-    function save() { localStorage.setItem(KEY_DB, JSON.stringify(keys)); }
+function loadRawData() {
+  return Object.entries(RAW).map(([no, d]) => ({
+    no: parseInt(no), fl: d.fl, name: d.name,
+    newName: '', qty: 1, cab: d.cab, status: 0, note: ''
+  }));
+}
 
-    function updateStats() {
-      const total = keys.length;
-      const ok = keys.filter(x => x.status === 1).length;
-      const err = keys.filter(x => x.status === 2).length;
-      document.getElementById('t-total').innerText = total;
-      document.getElementById('t-ok').innerText = ok;
-      document.getElementById('t-err').innerText = err;
-      document.getElementById('t-wait').innerText = total - (ok + err);
-    }
+function login() {
+  if (document.getElementById('pw').value === 'admin') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    init();
+  } else { alert('รหัสผ่านไม่ถูกต้อง'); }
+}
 
-    function resetAll() {
-      if(confirm('ต้องการรีเซ็ตสถานะและโหลดรายชื่อ 415 ดอกใหม่ทั้งหมดใช่หรือไม่?')) {
-        keys = loadRawData();
-        save(); render();
-      }
-    }
-  </script>
+function init() {
+  const saved = localStorage.getItem(KEY_DB);
+  if (saved) {
+    const savedMap = {};
+    JSON.parse(saved).forEach(k => savedMap[k.no] = k);
+    keys = loadRawData().map(k => savedMap[k.no]
+      ? {...k, status: savedMap[k.no].status, note: savedMap[k.no].note,
+         newName: savedMap[k.no].newName || '', qty: savedMap[k.no].qty ?? 1}
+      : k);
+  } else {
+    keys = loadRawData();
+  }
+  save(); render();
+}
+
+function flCell(fl) {
+  if (!fl || fl === '-') return '<span class="fl-empty">—</span>';
+  return '<span class="fl-badge">' + fl + '</span>';
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const cab = document.getElementById('f-cab').value;
+  const st = document.getElementById('f-status').value;
+
+  const filtered = keys.filter(k => {
+    const matchSearch = k.name.toLowerCase().includes(q)
+      || (k.newName||'').toLowerCase().includes(q)
+      || (k.fl||'').toLowerCase().includes(q)
+      || k.no.toString().includes(q);
+    const matchCab = cab === '' || k.cab == cab;
+    const matchSt = st === '' || k.status == st;
+    return matchSearch && matchCab && matchSt;
+  });
+
+  document.getElementById('tbody').innerHTML = filtered.map(k => `
+    <tr>
+      <td class="col-no">${k.no}</td>
+      <td class="col-fl">${flCell(k.fl)}</td>
+      <td>${k.name}</td>
+      <td class="new-name-col">
+        <input class="editable-cell" type="text" placeholder="—" value="${esc(k.newName||'')}"
+          onchange="setField(${k.no},'newName',this.value)">
+      </td>
+      <td style="text-align:center;">
+        <input class="qty-input" type="number" min="0" max="99" value="${k.qty}"
+          onchange="setField(${k.no},'qty',parseInt(this.value)||0)">
+      </td>
+      <td style="text-align:center;"><span class="badge">ตู้ ${k.cab}</span></td>
+      <td>
+        <div class="status-btns">
+          <button class="s-btn ok ${k.status===1?'active':''}" title="ใช้ได้" onclick="setStatus(${k.no},1)"><i class="ti ti-check"></i></button>
+          <button class="s-btn err ${k.status===2?'active':''}" title="ใช้ไม่ได้" onclick="setStatus(${k.no},2)"><i class="ti ti-x"></i></button>
+        </div>
+      </td>
+      <td>
+        <input class="editable-cell" type="text" placeholder="—" value="${esc(k.note||'')}"
+          onchange="setField(${k.no},'note',this.value)">
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('footer-note').textContent =
+    `แสดง ${filtered.length} จาก ${keys.length} รายการ`;
+  updateStats();
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+function setStatus(no, s) {
+  const k = keys.find(x => x.no === no);
+  k.status = k.status === s ? 0 : s;
+  save(); render();
+}
+
+function setField(no, field, val) {
+  const k = keys.find(x => x.no === no);
+  k[field] = val;
+  save();
+  updateStats();
+}
+
+function save() { localStorage.setItem(KEY_DB, JSON.stringify(keys)); }
+
+function updateStats() {
+  const ok = keys.filter(x=>x.status===1).length;
+  const err = keys.filter(x=>x.status===2).length;
+  document.getElementById('t-total').innerText = keys.length;
+  document.getElementById('t-ok').innerText = ok;
+  document.getElementById('t-err').innerText = err;
+  document.getElementById('t-wait').innerText = keys.length-(ok+err);
+}
+
+function resetAll() {
+  if (confirm('รีเซ็ตสถานะและหมายเหตุทั้งหมดใช่หรือไม่?\n(ชื่อใหม่และจำนวนจะยังคงอยู่)')) {
+    keys.forEach(k => { k.status = 0; k.note = ''; });
+    save(); render();
+  }
+}
+
+function exportExcel() {
+  const statusMap = {0:'ยังไม่ตรวจ', 1:'ใช้ได้', 2:'ใช้ไม่ได้'};
+  const data = [['No.','ชั้น','ชื่อเดิม','ชื่อใหม่','จำนวน','ตู้','สถานะ','หมายเหตุ']];
+  keys.forEach(k => data.push([
+    k.no, k.fl==='-'?'':k.fl, k.name, k.newName||'', k.qty,
+    'ตู้ '+k.cab, statusMap[k.status], k.note||''
+  ]));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:6},{wch:6},{wch:32},{wch:32},{wch:8},{wch:8},{wch:14},{wch:30}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Key Checklist');
+  XLSX.writeFile(wb, 'KeyChecklist_' + new Date().toISOString().slice(0,10) + '.xlsx');
+}
+
+function exportPDF() {
+  const statusMap = {0:'—', 1:'✓ ใช้ได้', 2:'✗ ใช้ไม่ได้'};
+  const statusColor = {0:'#555', 1:'#245C37', 2:'#8A1F11'};
+  const today = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  const rows = keys.map(k => `<tr>
+    <td>${k.no}</td>
+    <td style="text-align:center;font-weight:700">${k.fl==='-'?'':k.fl}</td>
+    <td>${k.name}</td>
+    <td style="color:#1a5276">${k.newName||''}</td>
+    <td style="text-align:center">${k.qty}</td>
+    <td style="text-align:center">ตู้ ${k.cab}</td>
+    <td style="color:${statusColor[k.status]};font-weight:600">${statusMap[k.status]}</td>
+    <td>${k.note||''}</td>
+  </tr>`).join('');
+  const win = window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Key Checklist</title>
+    <style>body{font-family:'Noto Sans Thai','Sarabun',Arial,sans-serif;font-size:10px;padding:20px;}
+    h1{font-size:18px;margin-bottom:4px;}p{color:#555;margin-bottom:12px;font-size:11px;}
+    table{width:100%;border-collapse:collapse;}
+    th{background:#111;color:#fff;padding:5px 8px;text-align:left;font-size:10px;}
+    td{padding:4px 8px;border-bottom:1px solid #ddd;vertical-align:top;}
+    tr:nth-child(even)td{background:#f8f5ef;}
+    @media print{@page{margin:15mm;}body{padding:0;}}</style></head><body>
+    <h1>Daily Key Checklist — Dusit Thani</h1>
+    <p>วันที่: ${today} | รายการทั้งหมด: ${keys.length} ดอก</p>
+    <table><thead><tr><th>No.</th><th>ชั้น</th><th>ชื่อเดิม</th><th>ชื่อใหม่</th>
+    <th>จำนวน</th><th>ตู้</th><th>สถานะ</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <script>window.onload=()=>{window.print();}<\/script></body></html>`);
+  win.document.close();
+}
+</script>
 </body>
 </html>
