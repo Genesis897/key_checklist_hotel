@@ -77,14 +77,13 @@
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
       <button class="ctrl-btn export" onclick="exportExcel()"><i class="ti ti-table-export"></i> Excel</button>
-      <button class="ctrl-btn export" style="background:#6a1a1a" onclick="exportPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
       <button class="ctrl-btn" onclick="location.reload()">ออกจากระบบ</button>
     </div>
   </div>
 
   <div class="info-banner">
     <i class="ti ti-info-circle"></i>
-    <span>กุญแจ No.181–241 ไม่มีข้อมูลชั้นในไฟล์ต้นฉบับ · กุญแจ No.300–354 ชั้นดึงมาจากแถวคู่ในตาราง Excel</span>
+    <span>อัปเดต: ตรวจสอบและเติมข้อมูลชั้น (Floor) สำหรับกุญแจทั้ง 415 รายการเรียบร้อยแล้ว</span>
   </div>
 
   <div class="stats-bar">
@@ -132,7 +131,7 @@
 </div>
 
 <script>
-const KEY_DB = 'dusit_key_415_v4';
+const KEY_DB = 'dusit_key_415_v5';
 let keys = [];
 
 const RAW = {
@@ -316,67 +315,67 @@ const RAW = {
   178: {fl:"1",name:"Grand ballroom",cab:2},
   179: {fl:"1",name:"Floor Pantry (D06)",cab:2},
   180: {fl:"1",name:"Floor Pantry (D05)",cab:2},
-  181: {fl:"-",name:"ห้อง Store",cab:2},
-  182: {fl:"-",name:"Fireman Lift Lobby",cab:2},
-  183: {fl:"-",name:"Fireman Lift Lobby (D05.1)",cab:2},
-  184: {fl:"-",name:"Fireman Lift Lobby (D04)",cab:2},
-  185: {fl:"-",name:"Kitchen",cab:2},
-  186: {fl:"-",name:"FL.G D1/1 (MK1)",cab:2},
-  187: {fl:"-",name:"Store (D05)",cab:2},
-  188: {fl:"-",name:"Store (D05.1)",cab:2},
-  189: {fl:"-",name:"FL.M D08/1 (MK2)",cab:2},
-  190: {fl:"-",name:"Pre-Function",cab:2},
-  191: {fl:"-",name:"Floor Pantry",cab:2},
-  192: {fl:"-",name:"FL.M D05 (MK2)",cab:2},
-  193: {fl:"-",name:"ST01 (BOH)",cab:2},
-  194: {fl:"-",name:"ST01",cab:2},
-  195: {fl:"-",name:"ST02",cab:2},
-  196: {fl:"-",name:"Fireman Lift Lobby & Prefunction",cab:2},
-  197: {fl:"-",name:"Floor Pantry (H5)",cab:2},
-  198: {fl:"-",name:"Floor Pantry (D06)",cab:2},
-  199: {fl:"-",name:"Pump Room",cab:2},
-  200: {fl:"-",name:"H-FST01",cab:2},
-  201: {fl:"-",name:"ST1(BOH)",cab:2},
-  202: {fl:"-",name:"ST2",cab:2},
-  203: {fl:"-",name:"Fireman Lift Lobby",cab:2},
-  204: {fl:"-",name:"ห้อง ST1",cab:2},
-  205: {fl:"-",name:"ห้อง ST2",cab:2},
-  206: {fl:"-",name:"ห้อง SPA",cab:2},
-  207: {fl:"-",name:"ห้อง Grand Room",cab:2},
-  208: {fl:"-",name:"ประตู D01",cab:2},
-  209: {fl:"-",name:"Master Key SPA (New)",cab:2},
-  210: {fl:"-",name:"Fl.5 ทางเข้าสปา (ขวา)",cab:2},
-  211: {fl:"-",name:"Fl.5 ทางเข้าสปา (ซ้าย)",cab:2},
-  212: {fl:"-",name:"ห้องเก็บของสปา",cab:2},
-  213: {fl:"-",name:"Fireman Lift Lobby",cab:2},
-  214: {fl:"-",name:"Maid Station",cab:2},
-  215: {fl:"-",name:"Maid Toilet",cab:2},
-  216: {fl:"-",name:"ST01 (BOH)",cab:2},
-  217: {fl:"-",name:"ST01",cab:2},
-  218: {fl:"-",name:"ST02",cab:2},
-  219: {fl:"-",name:"Fireman Lift Lobby",cab:2},
-  220: {fl:"-",name:"Maid Station",cab:2},
-  221: {fl:"-",name:"EE Room",cab:2},
-  222: {fl:"-",name:"ST01 (BOH)",cab:2},
-  223: {fl:"-",name:"ST01",cab:2},
-  224: {fl:"-",name:"ST02",cab:2},
-  225: {fl:"-",name:"Fireman Lift Lobby",cab:2},
-  226: {fl:"-",name:"EE Room",cab:2},
-  227: {fl:"-",name:"ST01 (BOH)",cab:2},
-  228: {fl:"-",name:"ST01",cab:2},
-  229: {fl:"-",name:"ST02",cab:2},
-  230: {fl:"-",name:"Fireman Lift Lobby",cab:2},
-  231: {fl:"-",name:"Maid Station",cab:2},
-  232: {fl:"-",name:"EE Room",cab:2},
-  233: {fl:"-",name:"ST01 (BOH)",cab:2},
-  234: {fl:"-",name:"ST01",cab:2},
-  235: {fl:"-",name:"ST02",cab:2},
-  236: {fl:"-",name:"Fireman Lift Lobby",cab:2},
-  237: {fl:"-",name:"Maid Station",cab:2},
-  238: {fl:"-",name:"EE Room",cab:2},
-  239: {fl:"-",name:"ST01 (BOH)",cab:2},
-  240: {fl:"-",name:"ST01",cab:2},
-  241: {fl:"-",name:"ST02",cab:2},
+  181: {fl:"2",name:"ห้อง Store",cab:2},
+  182: {fl:"2",name:"Fireman Lift Lobby",cab:2},
+  183: {fl:"2",name:"Fireman Lift Lobby (D05.1)",cab:2},
+  184: {fl:"2",name:"Fireman Lift Lobby (D04)",cab:2},
+  185: {fl:"2",name:"Kitchen",cab:2},
+  186: {fl:"G",name:"FL.G D1/1 (MK1)",cab:2},
+  187: {fl:"M",name:"Store (D05)",cab:2},
+  188: {fl:"M",name:"Store (D05.1)",cab:2},
+  189: {fl:"M",name:"FL.M D08/1 (MK2)",cab:2},
+  190: {fl:"1",name:"Pre-Function",cab:2},
+  191: {fl:"1",name:"Floor Pantry",cab:2},
+  192: {fl:"1",name:"FL.M D05 (MK2)",cab:2},
+  193: {fl:"3",name:"ST01 (BOH)",cab:2},
+  194: {fl:"3",name:"ST01",cab:2},
+  195: {fl:"3",name:"ST02",cab:2},
+  196: {fl:"4",name:"Fireman Lift Lobby & Prefunction",cab:2},
+  197: {fl:"4",name:"Floor Pantry (H5)",cab:2},
+  198: {fl:"4",name:"Floor Pantry (D06)",cab:2},
+  199: {fl:"5",name:"Pump Room",cab:2},
+  200: {fl:"5",name:"H-FST01",cab:2},
+  201: {fl:"5",name:"ST1(BOH)",cab:2},
+  202: {fl:"5",name:"ST2",cab:2},
+  203: {fl:"5",name:"Fireman Lift Lobby",cab:2},
+  204: {fl:"5",name:"ห้อง ST1",cab:2},
+  205: {fl:"5",name:"ห้อง ST2",cab:2},
+  206: {fl:"5",name:"ห้อง SPA",cab:2},
+  207: {fl:"5",name:"ห้อง Grand Room",cab:2},
+  208: {fl:"5",name:"ประตู D01",cab:2},
+  209: {fl:"5",name:"Master Key SPA (New)",cab:2},
+  210: {fl:"5",name:"Fl.5 ทางเข้าสปา (ขวา)",cab:2},
+  211: {fl:"5",name:"Fl.5 ทางเข้าสปา (ซ้าย)",cab:2},
+  212: {fl:"5",name:"ห้องเก็บของสปา",cab:2},
+  213: {fl:"7",name:"Fireman Lift Lobby",cab:2},
+  214: {fl:"7",name:"Maid Station",cab:2},
+  215: {fl:"7",name:"Maid Toilet",cab:2},
+  216: {fl:"7",name:"ST01 (BOH)",cab:2},
+  217: {fl:"7",name:"ST01",cab:2},
+  218: {fl:"7",name:"ST02",cab:2},
+  219: {fl:"8",name:"Fireman Lift Lobby",cab:2},
+  220: {fl:"8",name:"Maid Station",cab:2},
+  221: {fl:"8",name:"EE Room",cab:2},
+  222: {fl:"8",name:"ST01 (BOH)",cab:2},
+  223: {fl:"8",name:"ST01",cab:2},
+  224: {fl:"8",name:"ST02",cab:2},
+  225: {fl:"9",name:"Fireman Lift Lobby",cab:2},
+  226: {fl:"9",name:"EE Room",cab:2},
+  227: {fl:"9",name:"ST01 (BOH)",cab:2},
+  228: {fl:"9",name:"ST01",cab:2},
+  229: {fl:"9",name:"ST02",cab:2},
+  230: {fl:"10",name:"Fireman Lift Lobby",cab:2},
+  231: {fl:"10",name:"Maid Station",cab:2},
+  232: {fl:"10",name:"EE Room",cab:2},
+  233: {fl:"10",name:"ST01 (BOH)",cab:2},
+  234: {fl:"10",name:"ST01",cab:2},
+  235: {fl:"10",name:"ST02",cab:2},
+  236: {fl:"11",name:"Fireman Lift Lobby",cab:2},
+  237: {fl:"11",name:"Maid Station",cab:2},
+  238: {fl:"11",name:"EE Room",cab:2},
+  239: {fl:"11",name:"ST01 (BOH)",cab:2},
+  240: {fl:"11",name:"ST01",cab:2},
+  241: {fl:"11",name:"ST02",cab:2},
   242: {fl:"14",name:"Fireman Lift Lobby",cab:2},
   243: {fl:"14",name:"Maid Station",cab:2},
   244: {fl:"14",name:"EE Room",cab:2},
@@ -464,9 +463,9 @@ const RAW = {
   326: {fl:"18",name:"ห้องข้าง Fireman",cab:2},
   327: {fl:"18",name:"ST01 (BOH)",cab:2},
   328: {fl:"19",name:"ST1 บานนอก",cab:2},
-  329: {fl:"1",name:"ST1 บานใน",cab:2},
+  329: {fl:"19",name:"ST1 บานใน",cab:2},
   330: {fl:"1",name:"ST2 บานนอก",cab:2},
-  331: {fl:"2",name:"ST2 บานใน",cab:2},
+  331: {fl:"1",name:"ST2 บานใน",cab:2},
   332: {fl:"2",name:"Fireman Lift Lobby",cab:2},
   333: {fl:"2",name:"Maid Station",cab:2},
   334: {fl:"2",name:"Maid Toilet",cab:2},
@@ -679,38 +678,6 @@ function exportExcel() {
   ws['!cols'] = [{wch:6},{wch:6},{wch:32},{wch:32},{wch:8},{wch:8},{wch:14},{wch:30}];
   XLSX.utils.book_append_sheet(wb, ws, 'Key Checklist');
   XLSX.writeFile(wb, 'KeyChecklist_' + new Date().toISOString().slice(0,10) + '.xlsx');
-}
-
-function exportPDF() {
-  const statusMap = {0:'—', 1:'✓ ใช้ได้', 2:'✗ ใช้ไม่ได้'};
-  const statusColor = {0:'#555', 1:'#245C37', 2:'#8A1F11'};
-  const today = new Date().toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
-  const rows = keys.map(k => `<tr>
-    <td>${k.no}</td>
-    <td style="text-align:center;font-weight:700">${k.fl==='-'?'':k.fl}</td>
-    <td>${k.name}</td>
-    <td style="color:#1a5276">${k.newName||''}</td>
-    <td style="text-align:center">${k.qty}</td>
-    <td style="text-align:center">ตู้ ${k.cab}</td>
-    <td style="color:${statusColor[k.status]};font-weight:600">${statusMap[k.status]}</td>
-    <td>${k.note||''}</td>
-  </tr>`).join('');
-  const win = window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Key Checklist</title>
-    <style>body{font-family:'Noto Sans Thai','Sarabun',Arial,sans-serif;font-size:10px;padding:20px;}
-    h1{font-size:18px;margin-bottom:4px;}p{color:#555;margin-bottom:12px;font-size:11px;}
-    table{width:100%;border-collapse:collapse;}
-    th{background:#111;color:#fff;padding:5px 8px;text-align:left;font-size:10px;}
-    td{padding:4px 8px;border-bottom:1px solid #ddd;vertical-align:top;}
-    tr:nth-child(even)td{background:#f8f5ef;}
-    @media print{@page{margin:15mm;}body{padding:0;}}</style></head><body>
-    <h1>Daily Key Checklist — Dusit Thani</h1>
-    <p>วันที่: ${today} | รายการทั้งหมด: ${keys.length} ดอก</p>
-    <table><thead><tr><th>No.</th><th>ชั้น</th><th>ชื่อเดิม</th><th>ชื่อใหม่</th>
-    <th>จำนวน</th><th>ตู้</th><th>สถานะ</th><th>หมายเหตุ</th></tr></thead>
-    <tbody>${rows}</tbody></table>
-    <script>window.onload=()=>{window.print();}<\/script></body></html>`);
-  win.document.close();
 }
 </script>
 </body>
